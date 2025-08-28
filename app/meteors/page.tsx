@@ -12,7 +12,7 @@ const asteroids = [
   "99942_apophis","101955_bennu","19p_borrelly","9969_braille",
   "65803_didymos","dimorphos","152830_dinkinesh","52246_donaldjohanson",
   "433_eros","3548_eurybates","951_gaspra","103p_hartley","243_ida",
-  "25143_itokawa","11351_leucus","21_luteita","menoetius","21900_orus",
+  "25143_itokawa","11351_leucus","21_lutetia","menoetius","21900_orus",
   "617_patroclus","15094_polymele","162173_ryugu","73p_schwassman_wachmann_3",
   "9p_tempel_1","4_vesta","81p_wild_2"
 ];
@@ -25,7 +25,7 @@ const specialMap: Record<string, string> = {
   "3548_eurybates": "3.glb",
   "243_ida": "2.glb",
   "11351_leucus": "3.glb",
-  "21_luteita": "2.glb",
+  "21_lutetia": "2.glb",
   "menoetius": "3.glb",
   "21900_orus": "2.glb",
   "617_patroclus": "1.glb",
