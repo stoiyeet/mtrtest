@@ -2,13 +2,16 @@ import React, { useState, useMemo } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Html } from '@react-three/drei'
 import EarthImpact from './EarthImpact'
+import { denoise } from 'three/examples/jsm/tsl/display/DenoiseNode.js'
 
 // Example hardcoded asteroid data
 const DEFAULT_METEOR = {
   name: 'Demo Meteor',
   mass: 2.7e19,      // kg
   diameter: 226e3,   // meters
-  speed: 25e3        // m/s
+  speed: 25e3,        // m/s
+  angle: 90,          // degrees from horizontal
+  density: 2700,       // kg/m³
 }
 
 export default function MeteorImpactPage({ meteor = DEFAULT_METEOR }) {

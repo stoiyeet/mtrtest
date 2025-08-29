@@ -10,8 +10,11 @@ export default function ImpactPage() {
   const diameter = Number(params.get('diameter')) || 226e3 // meters
   const speed = Number(params.get('speed')) || 25e3       // m/s
   const name = params.get('name') || 'Demo Meteor'
+  const angle = Number(params.get('angle')) || 90
+  const density = Number(params.get('density')) || 2700
 
-  const meteor = { name, mass, diameter, speed }
+
+  const meteor = { name, mass, diameter, speed, angle, density }
 
   return <MeteorImpactPage meteor={meteor} />
 }

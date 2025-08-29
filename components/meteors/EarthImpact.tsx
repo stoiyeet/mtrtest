@@ -4,7 +4,7 @@ import { useLoader, useFrame } from '@react-three/fiber'
 import { TextureLoader } from 'three'
 
 
-interface Meteor { mass:number, diameter:number, speed:number }
+interface Meteor { mass:number, diameter:number, speed:number, angle:number, density:number }
 interface Impact { lat:number, lon:number }
 
 interface EarthImpactProps {
@@ -12,6 +12,12 @@ interface EarthImpactProps {
   impact: Impact;
   t: number;
   onImpactSelect?: (lat: number, lon: number) => void;
+}
+
+interface ImpactData {
+  craterDiameterKm: number;
+  craterDepthm: number;
+  windSpeedMs: number;
 }
 
 export default function EarthImpact({ meteor, impact, t, onImpactSelect }: EarthImpactProps) {
@@ -130,6 +136,11 @@ function meteorFlightPosition(t: number, impactPos: THREE.Vector3, startPos: THR
 
 function impactEffectScale(meteor: Meteor) {
   // Kinetic-energy-like scaling: proportional to (mass * speed^2)^(1/3)
-  const energy = meteor.mass * meteor.speed ** 2
+  const energy = 0.5*meteor.mass * meteor.speed ** 2
+
   return Math.cbrt(energy) * 1e-10 // normalized for your scene
+}
+
+function getRealEarthData(lat:number, lon:number) {
+  lon = -lon; // Invert longitude for texture coords
 }
