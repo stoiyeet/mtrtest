@@ -12,6 +12,8 @@ type Meteor = {
   mass: number;       // kg
   diameter: number;   // m
   speed: number;      // m/s
+  angle: number;      // degrees from horizontal
+  density: number;   // kg/m3
 };
 
 type EffectsState = {

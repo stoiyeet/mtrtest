@@ -43,6 +43,12 @@ interface Props {
   effects: EffectsState;
 }
 
+interface ImpactData {
+  craterDiameterKm: number;
+  craterDepthm: number;
+  windSpeedMs: number;
+}
+
 const EARTH_R = 1;
 const EARTH_R_KM = 6371;
 
@@ -341,6 +347,10 @@ function latLonToVec3(lat: number, lon: number, R: number): THREE.Vector3 {
     R * Math.sin(la),
     R * Math.cos(la) * Math.sin(lo)
   );
+}
+
+function getRealEarthData(lat:number, lon:number) {
+  lon = -lon; // Invert longitude for texture coords
 }
 
 export function ringRotation(surfacePoint: THREE.Vector3) {
