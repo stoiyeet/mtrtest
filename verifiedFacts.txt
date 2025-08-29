@@ -1,0 +1,6 @@
+Asteroid Density✔️
+Asteroid Mass ✔️
+Asteroid Radius ✔️
+Densities in density table in meteors/page.tsx
+impact info
+Population info
