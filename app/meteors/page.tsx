@@ -363,7 +363,7 @@ const info = asteroidInfo[selected as keyof typeof asteroidInfo];
                 // Parse weight
                 let weight = parseWeight(info.weight || '0');
                 // Get density (kg/m³)
-                const density = info.density ? parseDensity(info.density) : getDensity(info.material || '');
+                const density = getDensity(info.material || '', info.density);
                 
                 // If either size or weight is missing, estimate from the other
                 if (sizeMeters === 0 && weight > 0) {
