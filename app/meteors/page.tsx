@@ -1,44 +1,92 @@
 "use client";
 
-// Parse size string (strip units, get value in km)
+// Material density mapping (kg/m³)
+const materialDensities: Record<string, number> = {
+  // Metallic/Iron-rich types
+  'metallic': 5300,
+  'm-type': 5300,
+  'iron': 7800,
+
+  // Stony types
+  'stony': 3000,
+  's-type': 2700,
+  's/q-type': 2700,
+  'sq-type': 2700,
+  'q-type': 2600,
+  'basaltic': 3000,
+
+  // Carbonaceous types
+  'c-type': 1900,
+  'carbonaceous': 1900,
+  'd-type': 2200,
+  'p-type': 2600,
+
+  // Ice-rich types
+  'icy': 900,
+  'cometary': 600
+};
+
+// Parse size string (take before first whitespace, value in km)
 function parseSize(size: string): number {
   if (!size) return 0;
-  const val = size.split(/\s+/)[0];
+  const val = size.split(/\s+/)[0].replace('~', ''); // Remove approximate symbol if present
   return Number(val);
 }
 
-// Parse weight string (handle scientific notation, e.g. 5.4*10^11)
+// Parse weight string (handle scientific notation: 2.72x10^19 or 2.72e19)
 function parseWeight(weight: string): number {
-  if (!weight) return 0;
-  const val = weight.split(/\s+/)[0];
+  if (!weight || weight.toLowerCase().includes('unknown')) return 0;
+  
+  // Get the value before first whitespace
+  const val = weight.split(/\s+/)[0].replace('~', ''); // Remove approximate symbol
+  
+  // Handle 2.72x10^19 format
+  if (val.toLowerCase().includes('×10^')) {
+    const [base, exp] = val.toLowerCase().split('×10^');
+    return Number(base) * Math.pow(10, Number(exp));
+  }
+  
+  // Handle 2.72*10^19 format
   if (val.includes('*10^')) {
     const [base, exp] = val.split('*10^');
     return Number(base) * Math.pow(10, Number(exp));
   }
-  if (val.includes('e')) {
-    // e.g. 5.4e11
+  
+  // Handle 2.72e19 format
+  if (val.toLowerCase().includes('e')) {
     return Number(val);
   }
+  
+  // Plain number
   return Number(val);
+}
+
+// Get density for material type (kg/m³)
+function getDensity(material: string): number {
+  const defaultDensity = 2700; // Average S-type asteroid density
+  if (!material) return defaultDensity;
+  
+  const normalizedMaterial = material.toLowerCase().trim();
+  
+  // Try exact match first
+  if (normalizedMaterial in materialDensities) {
+    return materialDensities[normalizedMaterial];
+  }
+  
+  // Try partial matches
+  for (const [key, density] of Object.entries(materialDensities)) {
+    if (normalizedMaterial.includes(key)) {
+      return density;
+    }
+  }
+  
+  return defaultDensity;
 }
 
 // Estimate diameter (km) from mass (kg) and material
 function estimateDiameterFromMass(mass: number, material: string): string {
-  // Typical densities in kg/m^3
-  const densities: Record<string, number> = {
-    'iron': 7800,
-    'stony-iron': 5000,
-    'stony': 3000,
-    'carbonaceous': 2000,
-    'cometary': 600
-  };
-  let density = densities['stony'];
-  for (const key in densities) {
-    if (material.toLowerCase().includes(key)) {
-      density = densities[key];
-      break;
-    }
-  }
+  const density = getDensity(material);
+  
   // V = m / density, D = 2 * (3V/4pi)^(1/3)
   const volume = mass / density;
   const diameter = 2 * Math.cbrt((3 * volume) / (4 * Math.PI));
@@ -47,25 +95,16 @@ function estimateDiameterFromMass(mass: number, material: string): string {
 
 // Estimate mass (kg) from diameter (km) and material
 function estimateMassFromDiameter(diameter: number, material: string): string {
-  // Same density table as above
-  const densities: Record<string, number> = {
-    'iron': 7800,
-    'stony-iron': 5000,
-    'stony': 3000,
-    'carbonaceous': 2000,
-    'cometary': 600
-  };
-  let density = densities['stony'];
-  for (const key in densities) {
-    if (material.toLowerCase().includes(key)) {
-      density = densities[key];
-      break;
-    }
-  }
-  // D in km, convert to meters
+  const density = getDensity(material);
+  
+  // Convert diameter from km to meters
   const dMeters = diameter * 1000;
-  const volume = (4/3) * Math.PI * Math.pow(dMeters/2, 3);
+  
+  // Assume slightly oblate spheroid (typical for asteroids)
+  // Use 0.9 factor to account for irregular shape and voids
+  const volume = (4/3) * Math.PI * Math.pow(dMeters/2, 3) * 0.9;
   const mass = density * volume;
+  
   return mass.toExponential(3); // return as string in scientific notation
 }
 
