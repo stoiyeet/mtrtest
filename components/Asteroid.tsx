@@ -4,17 +4,16 @@ import { useFrame, useLoader } from "@react-three/fiber";
 import * as THREE from "three";
 
 interface AsteroidProps {
-  orbitRadius?: number;   // distance from Earth
-  orbitSpeed?: number;    // angular speed
-  earthPosition?: [number, number, number]; // Earth's world position
+  orbitRadius?: number;   // distance from Earth (kept for backward compatibility)
+  orbitSpeed?: number;    // angular speed (kept for backward compatibility)
+  earthPosition?: [number, number, number]; // Earth's world position (kept for backward compatibility)
 }
 
 const Asteroid: React.FC<AsteroidProps> = ({
   orbitRadius = 8,
   orbitSpeed = 0.2,
-  earthPosition = [50, 0, 0],
+  earthPosition = [0, 0, 0],
 }) => {
-  const pivotRef = useRef<THREE.Group>(null!); // orbit pivot
   const meshRef = useRef<THREE.Mesh>(null!);
 
   const map = useLoader(THREE.TextureLoader, "/textures/Asteroid.png");
@@ -29,15 +28,8 @@ const Asteroid: React.FC<AsteroidProps> = ({
     [map]
   );
 
-  useFrame(({ clock }) => {
-    const t = clock.getElapsedTime();
-
-    // Orbit around Earth
-    if (pivotRef.current) {
-      pivotRef.current.rotation.y = t * orbitSpeed; // spin around Y axis
-    }
-
-    // Spin asteroid itself
+  useFrame(() => {
+    // Only spin the asteroid itself, no orbital movement
     if (meshRef.current) {
       meshRef.current.rotation.y += 0.01;
       meshRef.current.rotation.x += 0.005;
@@ -45,17 +37,14 @@ const Asteroid: React.FC<AsteroidProps> = ({
   });
 
   return (
-    <group ref={pivotRef} position={earthPosition}>
-      <mesh
-        ref={meshRef}
-        position={[orbitRadius, 0, 0]} // offset asteroid from Earth
-        castShadow
-        receiveShadow
-        material={material}
-      >
-        <dodecahedronGeometry args={[1, 2]} />
-      </mesh>
-    </group>
+    <mesh
+      ref={meshRef}
+      castShadow
+      receiveShadow
+      material={material}
+    >
+      <dodecahedronGeometry args={[1, 2]} />
+    </mesh>
   );
 };
 
