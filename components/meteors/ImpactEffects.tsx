@@ -207,9 +207,15 @@ export default function ImpactEffects({ effects, impactLat, impactLon }: ImpactE
                   </div>
                   <div className={styles.distanceLabel}>Window Breakage</div>
                   <div className={styles.distanceDesc}>Glass windows shatter due to pressure wave</div>
-                  
                 </div>
+                
               )}
+            </div>
+            <div className={styles.sectionInfo}>
+                {effects.airblast_radius_building_collapse_m == effects.airblast_radius_glass_shatter_m && (
+                    <span style = {{color: "#d34646ff"}}>The proposed meteor is too large for conventional wind blast calculations, Factors like cubic dropoff in power and curvature of the earth makes it virtually impossible for wind blasts to propogate beyond the local horizon (1700km is a generous estimate)</span>
+                )
+                }
             </div>
           </div>
         )}
