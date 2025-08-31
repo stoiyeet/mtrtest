@@ -37,6 +37,7 @@ export type Damage_Results = {
   radius_M_ge_7_5_m: number | null;
   airblast_radius_building_collapse_m: number | null; // p=42600 Pa
   airblast_radius_glass_shatter_m: number | null; // p=6900 Pa
+  airblast_peak_overpressure: number | null;
 };
 
 // Constants
@@ -190,49 +191,126 @@ export function seismicMagnitudeAndRadius(E_J: number, threshold = 7.5) {
   return { M, radius_km: null, radius_m: null } as any;
 }
 
-// 11) airblast p(r) and wind using provided eqs
-export function peakOverpressureAtR(r_m: number, E_Mt: number, zb_m: number) {
-  if (E_Mt <= 0) throw new Error('E_Mt must be > 0');
-  const E_kt = E_Mt * 1000.0;
-  const r1 = r_m / Math.pow(E_kt, 1 / 3);
-  const zb1 = zb_m / Math.pow(E_kt, 1 / 3);
-  // constants
-  const p_x = 75000.0;
-  const r_x = 289.0 + 0.65 * zb1;
-  const p0 = 3.14e11 * Math.pow(zb1, -2.6);
-  const beta = 34.87 * Math.pow(zb1, -1.73);
-  const rm1 = 550.0 * Math.pow(zb1, 1.2);
+export function peakOverpressureAtR(
+  r_m: number,
+  E_Mt: number,
+  zb_m: number
+) {
+  if (!(E_Mt > 0)) throw new Error("E_Mt must be > 0 (megaton)");
+
+  const E_kt = E_Mt * 1000.0; // 1 Mt = 1000 kt
+  const scale = Math.pow(E_kt, 1.0 / 3.0);
+  const r1 = r_m / scale; // scaled distance for 1 kt
+  const zb1 = zb_m / scale; // scaled burst altitude for 1 kt
+
+  const p_x = 75000.0; // px (Pa)
+  const P0 = 1e5; // ambient pressure (Pa)
+  const c0 = 330.0; // sound speed (m/s)
+
+  // handle surface-burst special case (zb1 ~= 0)
+  const ZB_EPS = 1e-9;
+  let rm1: number;
   let p: number;
-  if (r1 > rm1) {
-    if (r1 <= 0) p = p_x;
-    else {
-      const frac = r_x / r1;
-      p = (p_x * r_x) / (4.0 * r1) * (1.0 + 3.0 * Math.pow(frac, 1.3));
+
+  if (zb1 <= ZB_EPS) {
+    // surface burst: use rx = 289 m and the "Mach-like" fit for the whole domain.
+    const rx = 289.0;
+    if (r1 <= 0) {
+      p = p_x;
+    } else {
+      const frac = rx / r1;
+      p = (p_x * rx) / (4.0 * r1) * (1.0 + 3.0 * Math.pow(frac, 1.0 / 3.0));
     }
+    rm1 = 0.0; // Mach region starts at ground zero for surface burst
   } else {
-    p = p0 * Math.exp(-beta * r1);
+    // non-zero burst altitude
+    const r_x_scaled = 289.0 + 0.65 * zb1;
+
+    // rm1 fit. For zb1 >= 550 there is no Mach region.
+    if (zb1 >= 550.0) {
+      rm1 = Infinity;
+    } else {
+      // safe because zb1 > 0 and zb1 != 550 here
+      rm1 = 550.0 * Math.pow(zb1 / (550.0 - zb1), 1.2);
+    }
+
+    // decide region
+    if (r1 > rm1) {
+      // Regular reflection region: exponential decay
+      // p0 = 3.14e11 * zb1^-2.6
+      // beta = 34.87 * zb1^-1.73
+      const p0 = 3.14e11 * Math.pow(zb1, -2.6);
+      const beta = 34.87 * Math.pow(zb1, -1.73);
+      // guard against extreme overflow/underflow
+      p = p0 * Math.exp(-beta * Math.max(0, r1));
+    } else {
+      if (r1 <= 0) {
+        p = p_x;
+      } else {
+        const frac = r_x_scaled / r1;
+        p =
+          (p_x * r_x_scaled) / (4.0 * r1) *
+          (1.0 + 3.0 * Math.pow(frac, 1.0 / 3.0));
+      }
+    }
   }
-  const U = Math.sqrt(Math.max(0, 2 * p / DEFAULTS.rho_air_for_wind));
+
+  if (!isFinite(p) || p < 0) p = 0;
+
+  // wind (particle) velocity behind shock (Eq. 59* in paper)
+  // u = (5 p / (7 P0)) * c0 / sqrt(1 + 6 p / (7 P0))
+  const alpha = (5.0 * p) / (7.0 * P0);
+  const denom = Math.sqrt(1.0 + (6.0 * p) / (7.0 * P0));
+  const U = denom === 0 ? 0 : alpha * (c0 / denom);
+
   return { p, U, r1, zb1, rm1 };
 }
 
 // bisection solver for radius where p(r)=targetP
-function findRadiusForOverpressure(targetP: number, E_Mt: number, zb_m: number, r_max = 3e6) {
-  // check monotonicity: p decreases with r; find bracket
-  const eps = 1e-6;
-  const p0 = peakOverpressureAtR(1.0, E_Mt, zb_m).p;
-  if (p0 < targetP) return null; // even at 1 m p < target
-  let lo = 1.0;
+export function findRadiusForOverpressure(
+  targetP: number,
+  E_Mt: number,
+  zb_m: number,
+  r_min = 1e-3,
+  r_max = 3e6
+): number | null {
+  if (!(targetP > 0)) throw new Error("targetP must be > 0 (Pa)");
+  if (!(E_Mt > 0)) throw new Error("E_Mt must be > 0 (megaton)");
+
+  // check monotonicity assumptions by sampling endpoints
+  const p_min = peakOverpressureAtR(r_min, E_Mt, zb_m).p;
+  const p_max = peakOverpressureAtR(r_max, E_Mt, zb_m).p;
+
+  // If even at the smallest radius the pressure is below target, no solution.
+  if (p_min < targetP) return null;
+
+  // If at r_max pressure is still above target, the solution lies beyond r_max.
+  if (p_max > targetP) return null;
+
+  let lo = r_min;
   let hi = r_max;
-  let p_hi = peakOverpressureAtR(hi, E_Mt, zb_m).p;
-  if (p_hi > targetP) return null; // not decaying enough within r_max
-  for (let i = 0; i < 60; i++) {
-    const mid = 0.5 * (lo + hi);
+  const REL_TOL = 1e-6;
+
+  for (let i = 0; i < 80; i++) {
+    const mid = lo + (hi - lo) / 2.0;
     const p_mid = peakOverpressureAtR(mid, E_Mt, zb_m).p;
-    if (Math.abs(p_mid - targetP) / (targetP + eps) < 1e-4) return mid;
-    if (p_mid > targetP) lo = mid; else hi = mid;
+
+    if (!isFinite(p_mid)) break;
+
+    // relative convergence
+    if (Math.abs(p_mid - targetP) <= Math.max(REL_TOL * targetP, 1e-12)) {
+      return mid;
+    }
+
+    // bisection step (pressure decreases with radius)
+    if (p_mid > targetP) {
+      lo = mid;
+    } else {
+      hi = mid;
+    }
   }
-  return 0.5 * (lo + hi);
+
+  return lo + (hi - lo) / 2.0;
 }
 
 export function computeImpactEffects(inputs: Damage_Inputs): Damage_Results {
@@ -285,6 +363,8 @@ export function computeImpactEffects(inputs: Damage_Inputs): Damage_Results {
   // airblast radii for thresholds
   const r_building = findRadiusForOverpressure(42600, E_Mt, zb);
   const r_glass = findRadiusForOverpressure(6900, E_Mt, zb);
+  const peakoverpressure =  peakOverpressureAtR(Dtc || 1, E_Mt, zb).p;
+
 
   const results: Damage_Results = {
     E_J,
@@ -309,6 +389,7 @@ export function computeImpactEffects(inputs: Damage_Inputs): Damage_Results {
     radius_M_ge_7_5_m: radius_m,
     airblast_radius_building_collapse_m: r_building,
     airblast_radius_glass_shatter_m: r_glass,
+    airblast_peak_overpressure: peakoverpressure,
   };
 
   return results;
