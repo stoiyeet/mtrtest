@@ -17,6 +17,7 @@ type Meteor = {
   mass: number;
   diameter: number;
   speed: number;
+  angle: number;
 };
 
 type Impact = {
@@ -79,7 +80,7 @@ export default function EarthImpact({
   );
 
   const entryStart = useMemo(
-    () => latLonToVec3(impact.lat, impact.lon, EARTH_R * 1.8),
+    () => latLonToVec3(impact.lat+90-meteor.angle, impact.lon, EARTH_R * 1.8),
     [impact]
   );
 
@@ -167,23 +168,33 @@ export default function EarthImpact({
       {effects.showAsteroid && t < impactTime && (
         <group ref={asteroidRef} position={asteroidPos}>
           <primitive object={gltf.scene} scale={asteroidScale*2} />
-          {/* Reentry glow */}
+          {/* Intense reentry glow */}
           <mesh>
-            <sphereGeometry args={[desiredAsteroidRadiusUnits * 2.0, 16, 16]} />
+            <sphereGeometry args={[desiredAsteroidRadiusUnits * 1.8, 32, 32]} />
             <meshBasicMaterial
-              color="#ff6622"
+              color="#ff2200"
               transparent
-              opacity={0.4 * Math.pow(t / impactTime, 2)}
+              opacity={0.7 * Math.pow(t / impactTime, 1.5)}
               blending={THREE.AdditiveBlending}
               depthWrite={false}
             />
           </mesh>
           <mesh>
-            <sphereGeometry args={[desiredAsteroidRadiusUnits * 3.0, 12, 12]} />
+            <sphereGeometry args={[desiredAsteroidRadiusUnits * 2.5, 24, 24]} />
             <meshBasicMaterial
-              color="#ff9944"
+              color="#ff4400"
               transparent
-              opacity={0.2 * Math.pow(t / impactTime, 2)}
+              opacity={0.5 * Math.pow(t / impactTime, 1.5)}
+              blending={THREE.AdditiveBlending}
+              depthWrite={false}
+            />
+          </mesh>
+          <mesh>
+            <sphereGeometry args={[desiredAsteroidRadiusUnits * 3.5, 16, 16]} />
+            <meshBasicMaterial
+              color="#ff6622"
+              transparent
+              opacity={0.3 * Math.pow(t / impactTime, 1.5)}
               blending={THREE.AdditiveBlending}
               depthWrite={false}
             />

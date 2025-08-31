@@ -355,7 +355,7 @@ const info = asteroidInfo[selected as keyof typeof asteroidInfo];
               </label>
               <input
                 type="range"
-                min="5"
+                min="30"
                 max="90"
                 value={impactAngle_deg}
                 onChange={(e) => setImpactAngle(Number(e.target.value))}
