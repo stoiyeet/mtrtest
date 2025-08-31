@@ -252,7 +252,7 @@ export default function ImpactEffects({ effects, impactLat, impactLon }: ImpactE
         {activeTab === 'seismic' && (
           <div className={styles.section}>
             <div className={styles.sectionInfo}>
-              The impact generates seismic waves similar to an earthquake.
+              The impact generates seismic waves which create an earthquake.
             </div>
             {effects.M && (
               <div className={styles.dataRow}>
