@@ -163,10 +163,10 @@ export default function MeteorImpactPage({ meteor }: { meteor: Meteor }) {
         camera={{ fov: 50, position: [0, 1.8, 3.5] }}
         style={{ background: 'radial-gradient(circle, #001122 0%, #000408 100%)' }}
       >
-        <ambientLight intensity={0.75} />
+        <ambientLight intensity={0.9} />
         <directionalLight
           position={[8, 10, 6]}
-          intensity={1.8}
+          intensity={2.2}
           castShadow
           shadow-mapSize-width={2048}
           shadow-mapSize-height={2048}
@@ -176,6 +176,15 @@ export default function MeteorImpactPage({ meteor }: { meteor: Meteor }) {
           shadow-camera-top={5}
           shadow-camera-bottom={-5}
         />
+        <mesh>
+  <sphereGeometry args={[1.02, 64, 64]} />
+  <meshBasicMaterial
+    color="#4abaff"
+    transparent
+    opacity={0.05}
+    side={THREE.BackSide}
+  />
+</mesh>
         <pointLight position={[-8, -3, -8]} intensity={0.3} color="#4488ff" />
         <Stars radius={120} depth={60} count={8000} factor={3} fade speed={0.2} />
         <OrbitControls
