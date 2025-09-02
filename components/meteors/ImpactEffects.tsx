@@ -121,7 +121,7 @@ export default function ImpactEffects({ effects, impactLat, impactLon }: ImpactE
             </div>
             <div className={styles.dataRow}>
               <span className={styles.label}>Energy</span>
-              <span className={styles.value}>{formatEnergy(effects.E_J)}</span>
+              <span className={styles.value}>{formatEnergy(effects.E_J)} of TNT</span>
             </div>
             <div className={styles.dataRow}>
               <span className={styles.label}>Recurrence Period</span>
@@ -275,13 +275,13 @@ export default function ImpactEffects({ effects, impactLat, impactLon }: ImpactE
             </div>
             {effects.M && (
               <div className={styles.dataRow}>
-                <span className={styles.label}>Richter Magnitude</span>
+                <span className={styles.label}>Immediate Richter Magnitude</span>
                 <span className={styles.value}>{effects.M.toFixed(1)}</span>
               </div>
             )}
             {effects.radius_M_ge_7_5_m && (
               <div className={styles.dataRow}>
-                <span className={styles.label}>EQ Damage Radius</span>
+                <span className={styles.label}>Range for widespread building collapse</span>
                 <span className={styles.value}>{formatDistance(effects.radius_M_ge_7_5_m)}</span>
               </div>
             )}
