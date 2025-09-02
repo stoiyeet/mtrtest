@@ -167,7 +167,7 @@ export function craterVolumeAndEffect(Dtc_m: number) {
   // Vtc = pi * Dtc^3 / (16*sqrt(2))  (m^3)
   const Vtc_m3 = Math.PI * Math.pow(Dtc_m, 3) / (16 * Math.sqrt(2));
   const Vtc_km3 = Vtc_m3 / 1e9;
-  const ratio = Vtc_km3 / VE_KM3;
+  const ratio = Math.min(Vtc_km3 / VE_KM3, 1);
   let effect: Damage_Results['earth_effect'] = 'negligible_disturbed';
   if (ratio > 0.5) effect = 'destroyed';
   else if (ratio >= 0.1) effect = 'strongly_disturbed';
@@ -286,7 +286,7 @@ export function findRadiusForOverpressure(
   E_Mt: number,
   zb_m: number,
   r_min: number,
-  r_max = 1.7e6
+  r_max = 1.7e10
 ): number {
   if (!isFinite(targetP) || targetP <= 0) return NaN;
   if (r_min <= 0) r_min = 1e-6;
@@ -362,7 +362,7 @@ export function computeImpactEffects(inputs: Damage_Inputs): Damage_Results {
     const crater = transientCrater(L0, rho_i, v_i, theta_rad, is_water);
     Dtc = crater.Dtc; dtc = crater.dtc; Dfr = crater.Dfr; dfr = crater.dfr;
     const vol = craterVolumeAndEffect(Dtc);
-    Vtc_km3 = vol.Vtc_km3; ratio = vol.ratio; effect = vol.effect;
+    Vtc_km3 = Math.min(vol.Vtc_km3,VE_KM3) ; ratio = vol.ratio; effect = vol.effect;
   }
 
   // seismic

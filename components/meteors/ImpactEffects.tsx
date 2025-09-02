@@ -59,9 +59,9 @@ export default function ImpactEffects({ effects, impactLat, impactLon }: ImpactE
   
   // Get descriptive text for earth effect
   const earthEffectText = {
-    destroyed: 'Global Catastrophe - Earth Severely Affected',
-    strongly_disturbed: 'Major Regional Effects - Significant Disturbance',
-    negligible_disturbed: 'Local Effects - Limited Impact'
+    destroyed: 'Earth Forms a new asteroid belt orbiting the sun',
+    strongly_disturbed: 'Earth\'s orbit is shifted substantially. Apocolypse is inevitable.',
+    negligible_disturbed: 'Earth Loses Negligible Mass'
   }[effects.earth_effect];
 
   const earthEffectClass = {
@@ -212,8 +212,8 @@ export default function ImpactEffects({ effects, impactLat, impactLon }: ImpactE
               )}
             </div>
             <div className={styles.sectionInfo}>
-                {effects.airblast_radius_building_collapse_m == effects.airblast_radius_glass_shatter_m && (
-                    <span style = {{color: "#d34646ff"}}>The proposed meteor is too large for conventional wind blast calculations, Factors like cubic dropoff in power and curvature of the earth makes it virtually impossible for wind blasts to propogate beyond the local horizon (1700km is a generous estimate)</span>
+                {effects.airblast_radius_building_collapse_m && effects.airblast_radius_building_collapse_m > 10000000 && (
+                    <span style = {{color: "#d34646ff"}}>The proposed meteor is too large for conventional wind blast calculations. Though the theoretical ranges are provided, with impacts of this size, global catastrophe is imminent and metrics like "flattened buildings" become irrelevant and calculations break</span>
                 )
                 }
             </div>
