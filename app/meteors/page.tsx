@@ -158,7 +158,7 @@ export default function AsteroidViewer() {
   const router = useRouter()
 
   const [impactSpeed, setImpactSpeed] = useState(20); // Speed in km/s
-  const [impactAngle_deg, setImpactAngle] = useState(90); // Angle in degrees
+  const [impactAngle_deg, setImpactAngle] = useState(45); // Angle in degrees
 
 
   const getGlbFile = (name: string) => {

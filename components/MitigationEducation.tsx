@@ -313,30 +313,6 @@ const MitigationEducation: React.FC = () => {
           Learn how we detect and deflect hazardous near-Earth objects (NEOs). Real data from NASA/ESA missions,
           Nature-published results, and current policy constraints are summarized below.
         </p>
-
-        {/* At-a-glance data tiles */}
-        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
-          <div className="rounded-lg border border-gray-700 p-3">
-            <div className="text-xs text-gray-400 flex items-center gap-1"><Rocket className="w-3.5 h-3.5" /> DART (2022)</div>
-            <div className="text-lg font-semibold">−33 ± 1 min</div>
-            <div className="text-xs text-gray-400">Orbital period change (Dimorphos)</div>
-          </div>
-          <div className="rounded-lg border border-gray-700 p-3">
-            <div className="text-xs text-gray-400 flex items-center gap-1"><Scale className="w-3.5 h-3.5" /> Momentum boost β</div>
-            <div className="text-lg font-semibold">≈ 3.61</div>
-            <div className="text-xs text-gray-400">Enhanced by ejecta recoil</div>
-          </div>
-          <div className="rounded-lg border border-gray-700 p-3">
-            <div className="text-xs text-gray-400 flex items-center gap-1"><Timer className="w-3.5 h-3.5" /> Lead time rule of thumb</div>
-            <div className="text-lg font-semibold">Years → Decades</div>
-            <div className="text-xs text-gray-400">Longer warning unlocks “slow-push” options</div>
-          </div>
-          <div className="rounded-lg border border-gray-700 p-3">
-            <div className="text-xs text-gray-400 flex items-center gap-1"><Satellite className="w-3.5 h-3.5" /> NEO Surveyor</div>
-            <div className="text-lg font-semibold">NET Sep 2027</div>
-            <div className="text-xs text-gray-400">Space IR survey to find ≥140 m NEOs</div>
-          </div>
-        </div>
       </div>
 
       {/* Controls */}
@@ -396,13 +372,16 @@ const MitigationEducation: React.FC = () => {
             className="px-3 py-1 rounded-lg text-sm transition-colors border bg-gray-800/70 text-gray-300 border-gray-700 hover:bg-gray-700 inline-flex items-center gap-2"
           >
             <Table2 className="w-4 h-4" />
-            {showCompare ? "Hide compare" : "Compare"}
+            {selectedCategory.includes("all") && (
+              showCompare ? "Hide compare" : "Compare"
+            )}
+
           </button>
         </div>
       </div>
 
       {/* Compare View */}
-      {showCompare && (
+      {showCompare && selectedCategory.includes("all") && (
         <div className="mb-6 overflow-x-auto rounded-lg border border-gray-700">
           <table className="w-full min-w-[720px] text-sm">
             <thead className="bg-gray-800/60">
@@ -526,17 +505,20 @@ const MitigationEducation: React.FC = () => {
                             <BookOpen className="w-4 h-4" />
                             Data highlights
                           </div>
-                          <div className="grid sm:grid-cols-2 gap-x-4 gap-y-1 text-sm">
+                          <div className="grid sm:grid-cols-2 gap-3 text-sm">
                             {m.dataPoints.map((d, idx) => (
-                              <div key={idx} className="flex items-start gap-2">
-                                <span className="text-gray-400 whitespace-nowrap">{d.label}:</span>
-                                <span className="text-gray-100">{d.value}</span>
-                                {d.hint && <span className="text-gray-400/80">({d.hint})</span>}
+                              <div key={idx} className="flex flex-col">
+                                <span className="text-gray-400">{d.label}</span>
+                                <div className="flex flex-wrap gap-1">
+                                  <span className="text-gray-100">{d.value}</span>
+                                  {d.hint && <span className="text-gray-400/80">({d.hint})</span>}
+                                </div>
                               </div>
                             ))}
                           </div>
                         </div>
                       )}
+
                     </div>
                   )}
 
