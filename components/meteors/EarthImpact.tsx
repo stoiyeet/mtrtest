@@ -23,7 +23,6 @@ type Meteor = {
 type Impact = { lat: number; lon: number; };
 
 type EffectsState = {
-  showAsteroid: boolean;
   fireball: boolean;
   sonicWave: boolean;
   shockwave: boolean;
@@ -136,12 +135,12 @@ export default function EarthImpact({
   }
 
   // Wave radii (centralized)
-  const {second_degree_burn, third_degree_burn, fireball_radius, buildingCollapseEarthquake, glassShatter, buildingCollapseShockwave } =
+  const {second_degree_burn, third_degree_burn, fireball_radius, buildingCollapseEarthquake, glassShatter, buildingCollapseShockwave, clothingIgnition } =
     computeWaveRadii(damage);
 
   // Zones
   const thermalZones = [
-    { radius: fireball_radius,     color: '#ff1100', label: 'Complete Vaporization', opacity: 0.35, borderColor: '#ffffff', delay: 0.0,  priority: 3 },
+    { radius: clothingIgnition,     color: '#ff1100', label: 'Complete Vaporization', opacity: 0.35, borderColor: '#ffffff', delay: 0.0,  priority: 3 },
     { radius: third_degree_burn,   color: '#ff4400', label: '100% 3rd Degree Burns', opacity: 0.25, borderColor: '#ffaa00', delay: 0.15, priority: 2 },
     { radius: second_degree_burn,  color: '#ff8800', label: '100% 2nd Degree Burns', opacity: 0.18, borderColor: '#ffcc00', delay: 0.30, priority: 1 },
   ];
@@ -164,7 +163,7 @@ export default function EarthImpact({
       />
 
       {/* Asteroid flight */}
-      {effects.showAsteroid && t < impactTime && (
+      {t < impactTime && (
         <group ref={asteroidRef} position={asteroidPos}>
           <primitive object={gltf.scene} scale={asteroidScale * 2} />
           <mesh>
@@ -205,7 +204,7 @@ export default function EarthImpact({
         <AsteroidExplosion
           position={impactPos}
           intensity={explosionIntensity}
-          asteroidRadiusUnits={desiredAsteroidRadiusUnits}
+          fireballRadius={surfacemToChordUnits(fireball_radius || 0)}
         />
       )}
 
