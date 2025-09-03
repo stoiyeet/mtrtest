@@ -1,193 +1,384 @@
+/* Professional, intimidating, minimal design */
 .container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #0f0f23 0%, #1a1a3a 50%, #2d1b69 100%);
-  color: white;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #0a0a0a;
+  color: #e0e0e0;
+  font-family: 'JetBrains Mono', 'Consolas', 'Monaco', monospace;
+  overflow-x: hidden;
+  position: relative;
 }
 
-.nav {
-  display: flex;
-  justify-content: center;
-  gap: 2rem;
-  padding: 2rem 1rem;
-  background: rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+.container::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 80%, rgba(11, 61, 145, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(252, 61, 57, 0.05) 0%, transparent 50%),
+    linear-gradient(180deg, #0a0a0a 0%, #0f0f0f 100%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.header {
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 1000;
+  background: rgba(10, 10, 10, 0.95);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid #333;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.nav a {
+.backButton {
+  background: transparent;
+  border: 1px solid #666;
+  color: #ccc;
   padding: 0.75rem 1.5rem;
-  border-radius: 25px;
-  text-decoration: none;
-  color: rgba(255, 255, 255, 0.7);
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  transition: all 0.3s ease;
-  font-weight: 500;
+  font-family: inherit;
   font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
 }
 
-.nav a:hover {
-  color: white;
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
-  transform: translateY(-2px);
+.backButton:hover {
+  background: #333;
+  border-color: #999;
+  color: #fff;
 }
 
-.nav a.active {
-  color: #4ade80;
-  background: rgba(74, 222, 128, 0.1);
-  border-color: rgba(74, 222, 128, 0.3);
-  box-shadow: 0 0 20px rgba(74, 222, 128, 0.2);
+.classification {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.nasaLabel {
+  color: #666;
+}
+
+.nasaLevel {
+  color: #0b3d91;
+  background: rgba(11, 61, 145, 0.1);
+  padding: 0.25rem 0.75rem;
+  border: 1px solid #0b3d91;
+  border-radius: 2px;
 }
 
 .content {
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 3rem 2rem;
+  padding: 0 2rem 4rem;
+  overflow-y: auto;
+  height: calc(100vh - 80px);
 }
 
-.content h1 {
-  font-size: 2.5rem;
-  font-weight: 700;
+.titleSection {
   text-align: center;
-  margin-bottom: 3rem;
-  background: linear-gradient(135deg, #4ade80, #22d3ee);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  margin: 3rem 0 4rem;
+  border-bottom: 1px solid #333;
+  padding-bottom: 2rem;
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  margin: 0 0 1rem;
+  color: #fff;
+  text-transform: uppercase;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: #888;
+  margin: 0 0 2rem;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+  text-transform: lowercase;
+}
+
+.warning {
+  display: inline-block;
+  background: rgba(11, 61, 145, 0.1);
+  border: 1px solid #0b3d91;
+  color: #4a90e2;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border-radius: 2px;
+}
+
+.equationsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 }
 
 .equation {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
+  background: rgba(20, 20, 20, 0.8);
+  border: 1px solid #333;
+  border-left: 4px solid #666;
   padding: 2rem;
-  margin-bottom: 2rem;
-  backdrop-filter: blur(10px);
   transition: all 0.3s ease;
+  position: relative;
 }
 
 .equation:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.2);
-  transform: translateY(-4px);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  border-left-color: #0b3d91;
+  background: rgba(25, 25, 25, 0.9);
+  box-shadow: 0 0 30px rgba(11, 61, 145, 0.2);
 }
 
-.equation h2 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-  color: #4ade80;
+.equationHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #333;
+  padding-bottom: 1rem;
+}
+
+.equationTitle {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.priority {
+  font-size: 0.7rem;
+  font-weight: 900;
+  padding: 0.25rem 0.75rem;
+  border-radius: 2px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.priority.primary {
+  background: rgba(11, 61, 145, 0.2);
+  border: 1px solid #0b3d91;
+  color: #4a90e2;
+}
+
+.priority.secondary {
+  background: rgba(252, 61, 57, 0.1);
+  border: 1px solid #fc3d39;
+  color: #ff6b6b;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
 }
 
 .math {
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 12px;
-  padding: 1.5rem;
+  background: #000;
+  border: 1px solid #444;
+  border-radius: 4px;
+  padding: 2rem;
   margin: 1.5rem 0;
   text-align: center;
-  border: 1px solid rgba(255, 255, 255, 0.1);
   overflow-x: auto;
+  position: relative;
+}
+
+.math::before {
+  content: 'EQUATION';
+  position: absolute;
+  top: 0.5rem;
+  left: 1rem;
+  font-size: 0.6rem;
+  color: #666;
+  font-weight: 700;
+  letter-spacing: 1px;
 }
 
 .math .katex {
-  font-size: 1.2rem;
-  color: white;
+  font-size: 1.4rem;
+  color: #fff;
 }
 
 .math .katex-display {
   margin: 0;
 }
 
-.equation p {
-  font-size: 1rem;
+.description {
+  font-size: 0.95rem;
   line-height: 1.6;
-  color: rgba(255, 255, 255, 0.8);
+  color: #bbb;
   margin: 0;
+  font-weight: 400;
+  letter-spacing: 0.2px;
 }
 
-.footer {
-  text-align: center;
-  padding: 3rem 2rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(0, 0, 0, 0.2);
+/* Scrollbar styling */
+.content::-webkit-scrollbar {
+  width: 8px;
 }
 
-.backButton {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 1rem 2rem;
-  background: linear-gradient(135deg, #4ade80, #22d3ee);
-  color: white;
-  text-decoration: none;
-  border-radius: 25px;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 20px rgba(74, 222, 128, 0.3);
+.content::-webkit-scrollbar-track {
+  background: #1a1a1a;
 }
 
-.backButton:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(74, 222, 128, 0.4);
+.content::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 4px;
+}
+
+.content::-webkit-scrollbar-thumb:hover {
+  background: #666;
 }
 
 /* Responsive design */
 @media (max-width: 768px) {
-  .nav {
-    flex-wrap: wrap;
+  .header {
+    padding: 1rem;
+    flex-direction: column;
     gap: 1rem;
-    padding: 1.5rem 1rem;
-  }
-  
-  .nav a {
-    padding: 0.5rem 1rem;
-    font-size: 0.8rem;
   }
   
   .content {
-    padding: 2rem 1rem;
+    padding: 0 1rem 4rem;
   }
   
-  .content h1 {
-    font-size: 2rem;
+  .title {
+    font-size: 1.8rem;
+    letter-spacing: 1px;
   }
   
   .equation {
     padding: 1.5rem;
   }
   
+  .equationHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
   .math {
-    padding: 1rem;
+    padding: 1.5rem;
   }
   
   .math .katex {
-    font-size: 1rem;
+    font-size: 1.1rem;
   }
 }
 
-/* Animation for page load */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
+/* Print styles for professional documentation */
+@media print {
+  .container {
+    background: white;
+    color: black;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  
+  .header {
+    background: white;
+    border-bottom: 2px solid black;
+  }
+  
+  .equation {
+    background: white;
+    border: 2px solid black;
+    break-inside: avoid;
+  }
+  
+  .math {
+    background: #f5f5f5;
+    border: 1px solid black;
   }
 }
 
-.equation {
-  animation: fadeInUp 0.6s ease-out;
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .equation {
+    transition: none;
+  }
+  
+  .severity.extreme {
+    animation: none;
+  }
 }
 
-.equation:nth-child(2) { animation-delay: 0.1s; }
-.equation:nth-child(3) { animation-delay: 0.2s; }
-.equation:nth-child(4) { animation-delay: 0.3s; }
-.equation:nth-child(5) { animation-delay: 0.4s; }
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .container {
+    background: #000;
+    color: #fff;
+  }
+  
+  .equation {
+    border: 2px solid #fff;
+  }
+  
+  .math {
+    background: #000;
+    border: 2px solid #fff;
+  }
+}
+
+.debrief {
+  max-width: 900px;
+  margin: 3rem auto;
+  padding: 2rem 2.5rem;
+  background: rgba(15, 15, 15, 0.9);
+  border: 1px solid #333;
+  border-left: 4px solid #0b3d91;
+  border-right: 4px solid #0b3d91;
+  border-radius: 4px;
+  box-shadow: 0 0 20px rgba(11, 61, 145, 0.15);
+  line-height: 1.6;
+  color: #ddd;
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+.debrief h2 {
+  font-size: 1.4rem;
+  font-weight: 800;
+  margin: 0 0 1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #fff;
+  border-bottom: 1px solid #333;
+  padding-bottom: 0.5rem;
+}
+
+.debrief p {
+  margin: 0 0 1.2rem;
+  color: #bbb;
+}
+
+.debrief strong {
+  color: #4a90e2;
+  font-weight: 600;
+}
+
+.debrief ul {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.debrief li {
+  margin: 0.5rem 0;
+  color: #aaa;
+}
+
