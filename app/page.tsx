@@ -78,7 +78,7 @@ export default function Home(): React.ReactElement {
                 className="text-6xl md:text-8xl font-extrabold tracking-tight mb-6 leading-none"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ duration: 0.8, delay: 0.4 }}
+                transition={{ duration: 0.8, delay: 0.41 }}
               >
                 <motion.span
                   className="text-cyan-400 drop-shadow-lg"

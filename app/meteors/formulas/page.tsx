@@ -94,24 +94,6 @@ export default function FormulasPage() {
 
   return (
     <div className={styles.container}>
-      <nav className={styles.nav}>
-        <Link href="/meteors/formulas?category=overview" className={category === 'overview' ? styles.active : ''}>
-          Overview
-        </Link>
-        <Link href="/meteors/formulas?category=thermal" className={category === 'thermal' ? styles.active : ''}>
-          Thermal
-        </Link>
-        <Link href="/meteors/formulas?category=blast" className={category === 'blast' ? styles.active : ''}>
-          Blast
-        </Link>
-        <Link href="/meteors/formulas?category=crater" className={category === 'crater' ? styles.active : ''}>
-          Crater
-        </Link>
-        <Link href="/meteors/formulas?category=seismic" className={category === 'seismic' ? styles.active : ''}>
-          Seismic
-        </Link>
-      </nav>
-
       <div className={styles.content}>
         <h1>{categoryData.title}</h1>
         
