@@ -165,23 +165,14 @@ export default function Home(): React.ReactElement {
       </section>
 
       {/* Attribution */}
-      <div className="absolute left-4 bottom-4 text-xs text-gray-400">
-        <span className="opacity-70">Built by</span>{" "}
-        <a
-          href="https://www.linkedin.com/in/mark-i-kogan/"
-          target="_blank"
-          className="hover:text-cyan-300"
-        >
-          Mark Kogan
-        </a>
-        <span className="mx-2 text-gray-600">•</span>
-        <a
-          href="https://www.linkedin.com/in/omid-latifi-2bb380215/"
-          target="_blank"
-          className="hover:text-cyan-300"
-        >
-          Omid Latifi
-        </a>
+      <div className="absolute left-4 bottom-4 text-xs text-gray-300/80 pointer-events-auto">
+        <div className="flex gap-3 items-center">
+          <span className="opacity-80">Lead Developer:</span>
+          <a href="https://www.linkedin.com/in/mark-i-kogan/" target="_blank" rel="noopener noreferrer" className="text-gray-200 hover:text-cyan-300 transition-colors">Mark Kogan</a>
+          <span className="text-gray-600">•</span>
+          <span className="opacity-80">Product Manager:</span>
+          <a href="https://www.linkedin.com/in/omid-latifi-2bb380215/" target="_blank" rel="noopener noreferrer" className="text-gray-200 hover:text-cyan-300 transition-colors">Omid Latifi</a>
+        </div>
       </div>
     </main>
   );
