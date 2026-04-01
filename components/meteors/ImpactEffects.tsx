@@ -245,21 +245,21 @@ export default function ImpactEffects({ effects, mortality, impactLat, impactLon
             <div className={styles.sectionInfo}>
               The wave blast creates a sudden pressure increase that can damage structures and cause injuries.
             </div>
-            {Waveblast_Results.Wind_Speed_50_km && Waveblast_Results.Wind_Speed_50_km < 5000 && (
+            {Waveblast_Results?.Wind_Speed_50_km && Waveblast_Results.Wind_Speed_50_km < 5000 && (
                 <div className={styles.dataRow}>
                     <span className={styles.label}>Overpressure At 50km away</span>
                     <span className={styles.value}>{formatOverPressure(Waveblast_Results.Overpressure_50_km)}</span>
               </div>
              )}
 
-            {Waveblast_Results.Wind_Speed_50_km && Waveblast_Results.Wind_Speed_50_km < 5000 && (
+            {Waveblast_Results?.Wind_Speed_50_km && Waveblast_Results.Wind_Speed_50_km < 5000 && (
               <div className={styles.dataRow}>
                 <span className={styles.label}>Top Wind Speed at 50km away</span>
                 <span className={styles.value}>{formatSpeed(Waveblast_Results.Wind_Speed_50_km)}</span>
               </div>
             )}
 
-            {Waveblast_Results.Wind_Speed_50_km && Waveblast_Results.Wind_Speed_50_km > 5000 && (
+            {Waveblast_Results?.Wind_Speed_50_km && Waveblast_Results.Wind_Speed_50_km > 5000 && (
               <div className={styles.dataRow}>
                 <span className={styles.label}>Approx distance at which air is shock-heated into plasma</span>
                 <span className={styles.value}>{formatDistance(Waveblast_Results.Ionization_Radius)}</span>
@@ -268,7 +268,7 @@ export default function ImpactEffects({ effects, mortality, impactLat, impactLon
 
    
             <div className={styles.distanceGrid}>
-              {Waveblast_Results.Radius_Building_Collapse_m && (
+              {Waveblast_Results?.Radius_Building_Collapse_m && (
                 <div className={styles.distanceCard}>
                   <div className={styles.distanceValue}>
                     {formatDistance(Waveblast_Results.Radius_Building_Collapse_m)}
@@ -277,7 +277,7 @@ export default function ImpactEffects({ effects, mortality, impactLat, impactLon
                   <div className={styles.distanceDesc}>Complete destruction of steel-reinforced skyscrapers</div>
                 </div>
               )}
-              {Waveblast_Results.Radius_Glass_Shatter_m && (
+              {Waveblast_Results?.Radius_Glass_Shatter_m && (
                 <div className={styles.distanceCard}>
                   <div className={styles.distanceValue}>
                     {formatDistance(Waveblast_Results.Radius_Glass_Shatter_m)}
@@ -289,7 +289,7 @@ export default function ImpactEffects({ effects, mortality, impactLat, impactLon
               )}
             </div>
             <div className={styles.sectionInfo}>
-                {Waveblast_Results.Radius_Building_Collapse_m && Waveblast_Results.Radius_Building_Collapse_m > 1000000 && (
+                {Waveblast_Results?.Radius_Building_Collapse_m && Waveblast_Results.Radius_Building_Collapse_m > 1000000 && (
                 <span style={{ color: "#d34646ff" }}>The proposed meteor is too large for conventional wind blast calculations.Though the theoretical ranges are provided, with impacts of this size, global catastrophe is imminent and metrics like &quot;flattened buildings&quot; become irrelevant and calculations break</span>
                 )
                 }
@@ -364,19 +364,19 @@ export default function ImpactEffects({ effects, mortality, impactLat, impactLon
             <div className={styles.sectionInfo}>
               The impact generates seismic waves which create an earthquake.
             </div>
-            {Seismic_Results.Magnitude && (
+            {Seismic_Results?.Magnitude && (
               <div className={styles.dataRow}>
                 <span className={styles.label}>Immediate Richter Magnitude</span>
                 <span className={styles.value}>{Seismic_Results.Magnitude.toFixed(1)}</span>
               </div>
             )}
-            {Seismic_Results.Radius_M_ge_7_5 && (
+            {Seismic_Results?.Radius_M_ge_7_5 && (
               <div className={styles.dataRow}>
                 <span className={styles.label}>Range for widespread building collapse</span>
                 <span className={styles.value}>{formatDistance(Seismic_Results.Radius_M_ge_7_5)}</span>
               </div>
             )}
-            {Seismic_Results.Description && (
+            {Seismic_Results?.Description && (
               <div className={styles.dataRow}>
                 <span className={styles.label}>Mega-Earthquake impacts</span>
                 <span className={styles.description_value}>{Seismic_Results.Description}</span>

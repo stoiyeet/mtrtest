@@ -7,7 +7,8 @@ import EarthImpact from './EarthImpact';
 import ImpactEffects from './ImpactEffects';
 import styles from './MeteorImpactPage.module.css';
 import {computeImpactEffects, estimateAsteroidDeaths } from '@/lib/serverPhysicsEngine';
-import { Mortality, Damage_Inputs } from '@/lib/impactTypes';
+import { Mortality, Damage_Inputs, CelestialBody } from '@/lib/impactTypes';
+import {earthBody, moonBody} from '@/lib/CelestialBodies';
 
 // NEW: styles outside Canvas
 import ImpactStyles from './styles/ImpactStyles';
@@ -31,13 +32,6 @@ type EffectsState = {
   labels: boolean;
 };
 
-type Tsunami_Results = {
-  rim_wave_height: number,
-  tsunami_radius: number,
-  max_tsunami_speed: number,
-  time_to_reach_1_km: number,
-  time_to_reach_100_km: number
-}
 
 const IMPACT_TIME = 0.40;
 
@@ -50,6 +44,7 @@ export default function MeteorImpactPageOptimized({ meteor }: { meteor: Meteor }
   const [isHudCollapsed, setIsHudCollapsed] = useState(false);
   const [shakeIntensity, setShakeIntensity] = useState(0);
   const [mounted, setMounted] = useState(false);
+  const [selectedBody, setSelectedBody] = useState<CelestialBody>(earthBody);
   const actualLong = - impactLon;  //longitude must be made negative because earth texture is flipped
   const [t, setT] = useState(0);
   const [playing, setPlaying] = useState(true);
@@ -88,7 +83,7 @@ export default function MeteorImpactPageOptimized({ meteor }: { meteor: Meteor }
   }), [meteor.mass, meteor.diameter, meteor.density, meteor.speed, meteor.angle, impactLat, actualLong, overWater]);
 
   const typedName = formatAsteroidName(meteor.name);
-  const damage = useMemo(() => computeImpactEffects(inputs), [inputs]);
+  const damage = useMemo(() => computeImpactEffects(inputs, selectedBody), [inputs, selectedBody]);
 
   // Debounced mortality calculation with AbortController
   const calculateMortality = useCallback(async (
@@ -142,13 +137,29 @@ export default function MeteorImpactPageOptimized({ meteor }: { meteor: Meteor }
   }, []);
 
   useEffect(() => {
+    if (!selectedBody.hasWater) {
+      setOverWater(false);
+      return;
+    }
 
-    fetch(`/api/overWater?lat=${impactLat}&lon=${actualLong}`)
-      .then((res) => res.json())
-      .then((data) => setOverWater(data.overWater))
-      .catch(() => setOverWater(false)); //Just default to false if failed
-  }, [impactLat, actualLong]);
+    const controller = new AbortController();
+    const { signal } = controller;
 
+    const checkOverWater = async () => {
+      try {
+        const res = await fetch(`/api/overWater?lat=${impactLat}&lon=${actualLong}`, { signal });
+        if (!res.ok) throw new Error("Network error");
+        const data = await res.json();
+        setOverWater(data.overWater);
+      } catch {
+        setOverWater(false);
+      }
+    };
+
+    checkOverWater();
+
+    return () => controller.abort(); // cancel pending fetch if lat/lon changes
+  }, [impactLat, actualLong, selectedBody]);
 
 
   // Debounced effect for mortality calculation
@@ -244,6 +255,36 @@ export default function MeteorImpactPageOptimized({ meteor }: { meteor: Meteor }
         <p className={styles.description}>
           Double-click the Earth to set impact location. Use timeline controls to navigate the sequence.
         </p>
+
+        <div className={styles.toggleGroup}>
+          <div style={{ fontSize: 11, fontWeight: 600, marginBottom: 6, color: '#88ccff' }}>
+            CELESTIAL BODY
+          </div>
+          <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+            <button
+              onClick={() => setSelectedBody(earthBody)}
+              className={styles.button}
+              style={{
+                flex: 1,
+                backgroundColor: selectedBody.name === 'Earth' ? '#4488ff' : '#223344',
+                opacity: selectedBody.name === 'Earth' ? 1 : 0.6
+              }}
+            >
+              Earth
+            </button>
+            <button
+              onClick={() => setSelectedBody(moonBody)}
+              className={styles.button}
+              style={{
+                flex: 1,
+                backgroundColor: selectedBody.name === 'Moon' ? '#4488ff' : '#223344',
+                opacity: selectedBody.name === 'Moon' ? 1 : 0.6
+              }}
+            >
+              Moon
+            </button>
+          </div>
+        </div>
 
         <div className={styles.toggleGroup}>
           <div style={{ fontSize: 11, fontWeight: 600, marginBottom: 6, color: '#88ccff' }}>
@@ -368,6 +409,7 @@ export default function MeteorImpactPageOptimized({ meteor }: { meteor: Meteor }
             onShake={setShakeIntensity}
             playing={playing}
             muted={muted}
+            celestialBody={selectedBody}
           />
         </React.Suspense>
       </Canvas>

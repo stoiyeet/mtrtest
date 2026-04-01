@@ -66,7 +66,7 @@ export type Tsunami_Results = {
 
 export type Damage_Results = {
     Strike_Overview: Strike_Overview,
-    Thermal_Effects: Thermal_Effects | null,
+    Thermal_Effects: Thermal_Effects,
     Crater_Results: Crater_Results,
     Seismic_Results: Seismic_Results | null,
     Waveblast_Results: Waveblast_Results | null,

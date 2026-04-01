@@ -686,8 +686,7 @@ export function computeImpactEffects(
     const airburst = breakup && Airburst_Altitude > 0;
 
     // 2. Thermal Effects
-    const thermalEffects: Thermal_Effects | null = body.features.thermal
-        ? (() => {
+    const thermalEffects: Thermal_Effects = (() => {
             const burns = burnRadii(Impact_Energy_Megatons_TNT, Impact_Energy, K);
             const Fireball_Radius = fireballRadius(Impact_Energy, body);
             return {
@@ -696,8 +695,7 @@ export function computeImpactEffects(
                 Second_Degree_Burn_Radius: burns.second,
                 Third_Degree_Burn_Radius: burns.third
             };
-        })()
-        : null;
+        })();
 
     // 3. Crater Results
     const craterResults: Crater_Results = computeCraterResults(inputs, strikeOverview, body)

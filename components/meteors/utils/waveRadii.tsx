@@ -23,9 +23,9 @@ export function computeWaveRadii(
   const second_degree_burn = Thermal_Effects.Second_Degree_Burn_Radius || 0;
   const third_degree_burn = Thermal_Effects.Third_Degree_Burn_Radius || 0;
   const fireball_radius = Thermal_Effects.Fireball_Radius || 0;
-  const buildingCollapseEarthquake = Seismic_Effects.Radius_M_ge_7_5 || 0;
-  const glassShatter = Waveblast_Results.Radius_Glass_Shatter_m || 0;
-  const buildingCollapseShockwave = Waveblast_Results.Radius_Building_Collapse_m || 0;
+  const buildingCollapseEarthquake = Seismic_Effects?.Radius_M_ge_7_5 || 0;
+  const glassShatter = Waveblast_Results?.Radius_Glass_Shatter_m || 0;
+  const buildingCollapseShockwave = Waveblast_Results?.Radius_Building_Collapse_m || 0;
   const clothingIgnition = Thermal_Effects.Clothes_Burn_Radius || 0;
 
 

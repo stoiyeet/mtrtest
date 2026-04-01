@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import React, { useRef } from 'react';
 import { useLoader, ThreeEvent } from '@react-three/fiber';
 import { TextureLoader } from 'three';
+import { CelestialBody } from '@/lib/impactTypes';
 import Clouds from './Clouds';
 
 interface EarthProps {
@@ -13,6 +14,7 @@ interface EarthProps {
   impactPosition?: THREE.Vector3 | null;
   blastRadius?: number;
   explosionStrength?: number;
+  celestialBody?: CelestialBody;
 }
 
 const EARTH_R = 1;
@@ -24,63 +26,84 @@ export default function Earth({
   impactPosition = null,
   blastRadius = 0,
   explosionStrength = 0,
+  celestialBody,
 }: EarthProps) {
   const meshRef = useRef<THREE.Mesh>(null!);
+  const isEarth = !celestialBody || celestialBody.name === 'Earth';
 
-  // Load textures
-  const dayTex = useLoader(TextureLoader, 'https://glb.asteroidstrike.earth/textures/earthDay2.png');
-  const normalTex = useLoader(TextureLoader, 'https://glb.asteroidstrike.earth/textures/earthNormal.png');
-  const specularTex = useLoader(TextureLoader, 'https://glb.asteroidstrike.earth/textures/earthSpecular.png');
+  // Load textures conditionally based on celestial body
+  let dayTex, normalTex, specularTex;
+  if (isEarth) {
+    dayTex = useLoader(TextureLoader, 'https://glb.asteroidstrike.earth/textures/earthDay2.png');
+    normalTex = useLoader(TextureLoader, 'https://glb.asteroidstrike.earth/textures/earthNormal.png');
+    specularTex = useLoader(TextureLoader, 'https://glb.asteroidstrike.earth/textures/earthSpecular.png');
 
-  // Texture settings
-  dayTex.colorSpace = THREE.SRGBColorSpace;
-  normalTex.colorSpace = THREE.LinearSRGBColorSpace;
-  specularTex.colorSpace = THREE.LinearSRGBColorSpace;
+    // Texture settings
+    dayTex.colorSpace = THREE.SRGBColorSpace;
+    normalTex.colorSpace = THREE.LinearSRGBColorSpace;
+    specularTex.colorSpace = THREE.LinearSRGBColorSpace;
+  }
 
   return (
     <group>
-      {/* Main Earth */}
+      {/* Main Celestial Body (Earth or Moon) */}
       <mesh ref={meshRef} onDoubleClick={onDoubleClick} receiveShadow castShadow>
         <sphereGeometry args={[EARTH_R, 128, 128]} />
-        <meshPhongMaterial
-          map={dayTex}
-          normalMap={normalTex}
-          normalScale={new THREE.Vector2(0.6, 0.6)} // Slight bump
-          specularMap={specularTex}
-          specular={0x444444}     // Light gray specular (oceans)
-          shininess={25}          // Shine on water
-          bumpScale={0.03}        // Subtle bump
-          emissive={0x101010}     // Tiny self-glow to prevent pure black
-          emissiveIntensity={0.5}
-        />
+        {isEarth ? (
+          <meshPhongMaterial
+            map={dayTex}
+            normalMap={normalTex}
+            normalScale={new THREE.Vector2(0.6, 0.6)} // Slight bump
+            specularMap={specularTex}
+            specular={0x444444}     // Light gray specular (oceans)
+            shininess={25}          // Shine on water
+            bumpScale={0.03}        // Subtle bump
+            emissive={0x101010}     // Tiny self-glow to prevent pure black
+            emissiveIntensity={0.5}
+          />
+        ) : (
+          // Moon - grey rocky surface
+          <meshPhongMaterial
+            color={0x888888}
+            specular={0x333333}
+            shininess={10}
+            emissive={0x0a0a0a}
+            emissiveIntensity={0.3}
+          />
+        )}
       </mesh>
 
-      {/* Atmosphere Glow (inner) */}
-      <mesh>
-        <sphereGeometry args={[EARTH_R * 1.008, 64, 64]} />
-        <meshBasicMaterial 
-          color="#4a90e2" 
-          transparent 
-          opacity={0.2} 
-          blending={THREE.AdditiveBlending}
-          side={THREE.BackSide}
-        />
-      </mesh>
+      {/* Atmosphere Glow - only for Earth */}
+      {isEarth && (
+        <>
+          {/* Atmosphere Glow (inner) */}
+          <mesh>
+            <sphereGeometry args={[EARTH_R * 1.008, 64, 64]} />
+            <meshBasicMaterial 
+              color="#4a90e2" 
+              transparent 
+              opacity={0.2} 
+              blending={THREE.AdditiveBlending}
+              side={THREE.BackSide}
+            />
+          </mesh>
 
-      {/* Atmosphere Glow (outer) */}
-      <mesh>
-        <sphereGeometry args={[EARTH_R * 1.015, 32, 32]} />
-        <meshBasicMaterial 
-          color="#88ccff" 
-          transparent 
-          opacity={0.1} 
-          blending={THREE.AdditiveBlending}
-          side={THREE.BackSide}
-        />
-      </mesh>
+          {/* Atmosphere Glow (outer) */}
+          <mesh>
+            <sphereGeometry args={[EARTH_R * 1.015, 32, 32]} />
+            <meshBasicMaterial 
+              color="#88ccff" 
+              transparent 
+              opacity={0.1} 
+              blending={THREE.AdditiveBlending}
+              side={THREE.BackSide}
+            />
+          </mesh>
+        </>
+      )}
 
-      {/* Dynamic Clouds */}
-      {showClouds && (
+      {/* Dynamic Clouds - only for Earth */}
+      {isEarth && showClouds && (
         <Clouds
           intensity={cloudIntensity}
           impactPosition={impactPosition}

@@ -10,7 +10,7 @@ import { getGlbFile } from './asteroidGLB';
 import AsteroidExplosion from './AsteroidExplosion';
 import Earth from "@/components/Earth";
 import ExplosionFlash from '@/components/ExplosionFlash';
-import { Damage_Results } from '@/lib/impactTypes';
+import { Damage_Results, CelestialBody } from '@/lib/impactTypes';
 import { computeWaveRadii } from './utils/waveRadii';
 import TsunamiWaves  from '@/components/TsunamiWaves'
 
@@ -49,15 +49,16 @@ interface Props {
   onShake?: (intensity: number) => void;
   playing: boolean;    // whether timeline is playing
   muted: boolean;      // whether audio is muted
+  celestialBody: CelestialBody;  // the body being impacted
 }
 
-const EARTH_R = 1;
-export const EARTH_R_M = 6371000;
+const EARTH_R = 1;  // normalized radius for Three.js
+export const EARTH_R_M = 6371000;  // Earth's actual radius in meters
 type GLTFResult = GLTF & { scene: THREE.Group };
 
-export function surfacemToChordUnits(m: number): number {
-  const maxm = Math.min(m, EARTH_R_M * 0.9);
-  const theta = maxm / EARTH_R_M;
+export function surfacemToChordUnits(m: number, bodyRadiusM: number = EARTH_R_M): number {
+  const maxm = Math.min(m, bodyRadiusM * 0.9);
+  const theta = maxm / bodyRadiusM;
   return EARTH_R * theta * 0.8;
 }
 
@@ -178,7 +179,8 @@ export default function EarthImpact({
   tsunamiRadius,
   onShake,
   playing,
-  muted
+  muted,
+  celestialBody
 }: Props) {
 
   // Audio refs for Soft-Air-Travel, Explosion, and Fallout
@@ -271,7 +273,7 @@ export default function EarthImpact({
     softExplosionTriggered: false,
   });
 
-  const height = Math.max(3*Strike_Overview.Airburst_Altitude/EARTH_R_M, 0.001)
+  const height = Math.max(3*Strike_Overview.Airburst_Altitude/celestialBody.radius_M, 0.001)
   const impactPos = useMemo(
     () => latLonToVec3(impact.lat, impact.lon, EARTH_R + height),
     [impact]
@@ -298,9 +300,9 @@ export default function EarthImpact({
     const radiusKm = diameterKm / 2;
     const minVisible = 0.002 * EARTH_R;
     const maxVisible = 0.05 * EARTH_R;
-    const calculatedSize = (radiusKm / EARTH_R_M) * EARTH_R;
+    const calculatedSize = (radiusKm / celestialBody.radius_M) * EARTH_R;
     return Math.max(minVisible, Math.min(calculatedSize, maxVisible));
-  }, [meteor.diameter]);
+  }, [meteor.diameter, celestialBody.radius_M]);
 
   const MODEL_MAX_DIM: Record<string, number> = {
     "apophis": 339*751,
@@ -602,13 +604,14 @@ export default function EarthImpact({
 
   return (
     <group>
-      {/* Earth - only render if not destroyed or before impact */}
+      {/* Celestial Body - only render if not destroyed or before impact */}
       {!(Crater_Results.Earth_Effect === "destroyed" && t > impactTime) && (
         <Earth
           onDoubleClick={handleDoubleClick}
           impactPosition={impactPos}
           blastRadius={blastRadius}
           explosionStrength={explosionStrength}
+          celestialBody={celestialBody}
         />
       )}
 
