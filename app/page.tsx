@@ -167,7 +167,7 @@ export default function Home(): React.ReactElement {
       {/* Attribution */}
       <div className="absolute left-4 bottom-4 text-xs text-gray-300/80 pointer-events-auto">
         <div className="flex gap-3 items-center">
-          <span className="opacity-80">Lead Developer:</span>
+          <span className="opacity-80">Technical Lead:</span>
           <a href="https://www.linkedin.com/in/mark-i-kogan/" target="_blank" rel="noopener noreferrer" className="text-gray-200 hover:text-cyan-300 transition-colors">Mark Kogan</a>
           <span className="text-gray-600">•</span>
           <span className="opacity-80">Product Manager:</span>

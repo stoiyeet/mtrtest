@@ -1,19 +1,26 @@
 // impact_effects.ts
 // Functions extracted from study at https://impact.ese.ic.ac.uk/ImpactEarth/ImpactEffects/effects.pdf
 import { fromUrl, GeoTIFF, GeoTIFFImage } from "geotiff";
-import { Damage_Inputs, Damage_Results, Strike_Overview, Thermal_Effects, Crater_Results, Seismic_Results, Waveblast_Results, Earth_Effect, Tsunami_Results, Mortality } from "./impactTypes";
-
-const EARTH_R_M = 6371000;
+import {
+    Damage_Inputs,
+    Damage_Results,
+    Strike_Overview,
+    Thermal_Effects,
+    Crater_Results,
+    Seismic_Results,
+    Waveblast_Results,
+    Earth_Effect,
+    Tsunami_Results,
+    Mortality,
+    CelestialBody
+} from "./impactTypes";
+import {earthBody} from "./CelestialBodies"
 
 // Constants
 const MT_TO_J = 4.184e15;
-const G = 9.81;
-const VE_KM3 = 1.083e12; // Earth's volume km^3 for comparison
 const GLOBAL_POP = 8_250_000_000;
 const GLOBAL_AVERAGE_DENSITY = 50;
 const HALF_CIRCUMFERENCE_M = 20037508.34;
-const EARTH_DIAMETER = 12756e3; // in meters
-
 
 const DEFAULTS = {
     K: 3e-3,
@@ -96,9 +103,9 @@ export function pancakeAirburstAltitude(Lo: number, rho_i: number, theta_rad: nu
 }
 
 // fireball radius
-export function fireballRadius(E_J: number) {
+export function fireballRadius(E_J: number, body: CelestialBody) {
     // Rf = 0.002 * E^(1/3) with E in joules
-    return Math.min(EARTH_R_M, 0.002 * Math.pow(E_J, 1 / 3));
+    return Math.min(body.radius_M, 0.002 * Math.pow(E_J, 1 / 3));
 }
 
 // 7) burn radii (clothing, 2nd, 3rd) with horizon cap
@@ -121,12 +128,12 @@ export function burnRadii(E_Mt: number, E_J: number, K = DEFAULTS.K) {
 }
 
 // 8) crater scaling
-export function transientCrater(L0: number, rho_i: number, v_i: number, theta_rad: number, is_water: boolean) {
+export function transientCrater(L0: number, rho_i: number, v_i: number, theta_rad: number, is_water: boolean, body: CelestialBody) {
     const rho_t = is_water ? 2700 : 2500;
     v_i = is_water ? v_i * Math.exp(-3 * DEFAULTS.density_water * DEFAULTS.water_drag_coeff * DEFAULTS.water_depth_m / (2 * L0 * Math.sin(theta_rad) * rho_i)) : v_i;
     const coeff = 1.161;
     const term = Math.pow(rho_i / rho_t, 1 / 3);
-    let Dtc = coeff * term * Math.pow(L0, 0.78) * Math.pow(v_i, 0.44) * Math.pow(G, -0.22) * Math.pow(Math.sin(theta_rad), 1 / 3);
+    let Dtc = coeff * term * Math.pow(L0, 0.78) * Math.pow(v_i, 0.44) * Math.pow(body.gravity, -0.22) * Math.pow(Math.sin(theta_rad), 1 / 3);
     let dtc = Dtc / (2 * Math.sqrt(2));
     // final diameter
     let Dfr: number;
@@ -138,12 +145,12 @@ export function transientCrater(L0: number, rho_i: number, v_i: number, theta_ra
         Dfr = 1.17 * Math.pow(Dtc, 1.13) / Math.pow(3200, 0.13);
         dfr = 1000 * (0.294 * Math.pow(Dfr / 1000, 0.301));
     }
-    [Dtc, dtc, Dfr, dfr] = [Dtc, dtc, Dfr, dfr].map(x => Math.min(x, EARTH_DIAMETER));
+    [Dtc, dtc, Dfr, dfr] = [Dtc, dtc, Dfr, dfr].map(x => Math.min(x, body.Diameter_M));
     return { Dtc, dtc, Dfr, dfr };
 }
 
 
-function oceanWaterCraterDiameter(damageInputs: Damage_Inputs) {
+function oceanWaterCraterDiameter(damageInputs: Damage_Inputs, body: CelestialBody) {
     const diameter = damageInputs.L0
     const meteor_density = damageInputs.rho_i
     const impact_velocity = damageInputs.v0
@@ -152,20 +159,20 @@ function oceanWaterCraterDiameter(damageInputs: Damage_Inputs) {
     const coeff = 1.365
     const rho_t = 1000 // ocean water density
     const term = Math.pow(meteor_density / rho_t, 1 / 3);
-    const Dtc = coeff * term * Math.pow(diameter, 0.78) * Math.pow(impact_velocity, 0.44) * Math.pow(G, -0.22) * Math.pow(Math.sin(angle), 1 / 3);
+    const Dtc = coeff * term * Math.pow(diameter, 0.78) * Math.pow(impact_velocity, 0.44) * Math.pow(body.gravity, -0.22) * Math.pow(Math.sin(angle), 1 / 3);
     return Dtc
 }
 
 
 // 9) transient crater volume and Earth effect
-export function craterVolumeAndEffect(Dtc_m: number) {
-    if (Dtc_m >= EARTH_DIAMETER) {
-        return { Vtc_km3: VE_KM3, ratio: 1, effect: 'destroyed' as Earth_Effect };
+export function craterVolumeAndEffect(Dtc_m: number, body: CelestialBody) {
+    if (Dtc_m >= body.Diameter_M) {
+        return { Vtc_km3: body.Volume_KM3, ratio: 1, effect: 'destroyed' as Earth_Effect };
     }
     // Vtc = pi * Dtc^3 / (16*sqrt(2))  (m^3)
     const Vtc_m3 = Math.PI * Math.pow(Dtc_m, 3) / (16 * Math.sqrt(2));
     const Vtc_km3 = Vtc_m3 / 1e9;
-    const ratio = Math.min(Vtc_km3 / VE_KM3, 1);
+    const ratio = Math.min(Vtc_km3 / body.Volume_KM3, 1);
     let effect: Earth_Effect = 'negligible_disturbed';
     if (ratio > 0.5) effect = 'destroyed';
     else if (ratio >= 0.1) effect = 'strongly_disturbed';
@@ -421,6 +428,13 @@ export async function estimateAsteroidDeaths(
 
     const {Strike_Overview, Thermal_Effects, Seismic_Results, Crater_Results} = damage_Info
 
+    if (!Strike_Overview || Thermal_Effects == null || Seismic_Results == null|| Crater_Results == null) {
+        return {
+            deathCount: 0,
+            injuryCount: 0,
+        };
+    }
+
     if (Crater_Results.Earth_Effect === "destroyed" || Crater_Results.Earth_Effect === "strongly_disturbed") {
         return { deathCount: GLOBAL_POP, injuryCount: 0 };
     }
@@ -543,9 +557,9 @@ export async function isOverWater(
 }
 
 
-export function tsunamiInfo(inputs: Damage_Inputs, airburst: boolean) {
+export function tsunamiInfo(inputs: Damage_Inputs, airburst: boolean, body: CelestialBody) {
     const {is_water} = inputs
-    const Dtc = oceanWaterCraterDiameter(inputs)
+    const Dtc = oceanWaterCraterDiameter(inputs, body)
     if (!is_water || airburst || !Dtc) {
         return {
             rim_wave_height: 0,
@@ -565,11 +579,11 @@ export function tsunamiInfo(inputs: Damage_Inputs, airburst: boolean) {
         : eq_19_tsunami_speed(rim_wave_height);
 
     function eq_19_tsunami_speed(A: number): number {
-        return Math.sqrt(G * DEFAULTS.water_depth_m) * (1 + A / (2 * DEFAULTS.water_depth_m))
+        return Math.sqrt(body.gravity * DEFAULTS.water_depth_m) * (1 + A / (2 * DEFAULTS.water_depth_m))
     }
 
     function eq_20_tsunami_speed(A: number, lambda: number): number {
-        return Math.sqrt(G * lambda / (2 * Math.PI) * (1 + (2 * Math.PI ** 2 * A ** 2) / lambda ** 2))
+        return Math.sqrt(body.gravity * lambda / (2 * Math.PI) * (1 + (2 * Math.PI ** 2 * A ** 2) / lambda ** 2))
     }
 
     function max_time(Dtc: number, r: number) {
@@ -620,7 +634,7 @@ function computeStrikeOverview(inputs: Damage_Inputs): Strike_Overview {
     };
 }
 
-function computeCraterResults(inputs: Damage_Inputs, overview: Strike_Overview): Crater_Results {
+function computeCraterResults(inputs: Damage_Inputs, overview: Strike_Overview, body: CelestialBody): Crater_Results {
     const { L0, rho_i, is_water } = inputs;
     const { Airburst_Altitude, Impact_Velocity, Breakup_Altitude } = overview;
 
@@ -643,9 +657,9 @@ function computeCraterResults(inputs: Damage_Inputs, overview: Strike_Overview):
 
     // Crater calculation
     const theta_rad = (inputs.theta_deg * Math.PI) / 180.0;
-    const crater = transientCrater(L0, rho_i, Impact_Velocity, theta_rad, is_water);
-    const vol = craterVolumeAndEffect(crater.Dtc);
-    const Vtc_km3 = Math.min(vol.Vtc_km3, VE_KM3);
+    const crater = transientCrater(L0, rho_i, Impact_Velocity, theta_rad, is_water, body);
+    const vol = craterVolumeAndEffect(crater.Dtc, body);
+    const Vtc_km3 = Math.min(vol.Vtc_km3, body.Volume_KM3);
 
     return {
         Transient_Diameter: crater.Dtc,
@@ -659,67 +673,72 @@ function computeCraterResults(inputs: Damage_Inputs, overview: Strike_Overview):
     };
 }
 
-export function computeImpactEffects(inputs: Damage_Inputs): Damage_Results {
+export function computeImpactEffects(
+    inputs: Damage_Inputs,
+    body = earthBody
+): Damage_Results {
     const K = inputs.K ?? DEFAULTS.K;
 
-    // 1. Calculate Strike Overview
+    // 1. Strike Overview
     const strikeOverview = computeStrikeOverview(inputs);
     const { Impact_Energy, Impact_Energy_Megatons_TNT, Airburst_Altitude, Breakup_Altitude } = strikeOverview;
-
-    // Determine if airburst occurred for logic checks
     const breakup = Breakup_Altitude > 0;
     const airburst = breakup && Airburst_Altitude > 0;
 
     // 2. Thermal Effects
-    const burns = burnRadii(Impact_Energy_Megatons_TNT, Impact_Energy, K);
-    const Fireball_Radius = fireballRadius(Impact_Energy);
-
-    const thermalEffects: Thermal_Effects = {
-        Fireball_Radius: Fireball_Radius,
-        Clothes_Burn_Radius: burns.clothing,
-        Second_Degree_Burn_Radius: burns.second,
-        Third_Degree_Burn_Radius: burns.third
-    };
+    const thermalEffects: Thermal_Effects | null = body.features.thermal
+        ? (() => {
+            const burns = burnRadii(Impact_Energy_Megatons_TNT, Impact_Energy, K);
+            const Fireball_Radius = fireballRadius(Impact_Energy, body);
+            return {
+                Fireball_Radius,
+                Clothes_Burn_Radius: burns.clothing,
+                Second_Degree_Burn_Radius: burns.second,
+                Third_Degree_Burn_Radius: burns.third
+            };
+        })()
+        : null;
 
     // 3. Crater Results
-    const craterResults = computeCraterResults(inputs, strikeOverview);
+    const craterResults: Crater_Results = computeCraterResults(inputs, strikeOverview, body)
 
     // 4. Seismic Results
-    let seismicResults: Seismic_Results;
-    if (!airburst) {
-        const seismic = seismicMagnitudeAndRadius(Impact_Energy);
-        seismicResults = {
-            Magnitude: seismic.M,
-            Radius_M_ge_7_5: seismic.radius_m,
-            Description: seismic.description,
-        };
-    } else {
-        seismicResults = {
-            Magnitude: null,
-            Radius_M_ge_7_5: null,
-            Description: undefined,
-        };
-    }
+    const seismicResults: Seismic_Results | null = body.features.seismic
+        ? (!airburst
+            ? (() => {
+                const seismic = seismicMagnitudeAndRadius(Impact_Energy);
+                return {
+                    Magnitude: seismic.M,
+                    Radius_M_ge_7_5: seismic.radius_m,
+                    Description: seismic.description
+                };
+            })()
+            : { Magnitude: null, Radius_M_ge_7_5: null, Description: undefined })
+        : null;
 
     // 5. Waveblast (Airblast) Results
-    const r_building = findRadiusForOverpressure(273000, Impact_Energy_Megatons_TNT, Airburst_Altitude, Fireball_Radius);
-    const r_glass = findRadiusForOverpressure(6900, Impact_Energy_Megatons_TNT, Airburst_Altitude, Fireball_Radius);
-    const overpressureAt50_km = peakOverpressureAtR(50000, Impact_Energy_Megatons_TNT, Airburst_Altitude);
-    const windspeedAt50_km = peakWindSpeed(overpressureAt50_km);
-    const r_ionization = findRadiusForOverpressure(75750000, Impact_Energy_Megatons_TNT, Airburst_Altitude, 50000);
+    const waveblastResults: Waveblast_Results | null = body.features.waveblast
+        ? (() => {
+            const Fireball_Radius = fireballRadius(Impact_Energy, body);
+            const r_building = findRadiusForOverpressure(273000, Impact_Energy_Megatons_TNT, Airburst_Altitude, Fireball_Radius);
+            const r_glass = findRadiusForOverpressure(6900, Impact_Energy_Megatons_TNT, Airburst_Altitude, Fireball_Radius);
+            const overpressureAt50_km = peakOverpressureAtR(50000, Impact_Energy_Megatons_TNT, Airburst_Altitude);
+            const windspeedAt50_km = peakWindSpeed(overpressureAt50_km);
+            const r_ionization = findRadiusForOverpressure(75750000, Impact_Energy_Megatons_TNT, Airburst_Altitude, 50000);
 
-    const waveblastResults: Waveblast_Results = {
-        Radius_Building_Collapse_m: r_building,
-        Radius_Glass_Shatter_m: r_glass,
-        Overpressure_50_km: overpressureAt50_km,
-        Wind_Speed_50_km: windspeedAt50_km,
-        Ionization_Radius: r_ionization
-    };
+            return {
+                Radius_Building_Collapse_m: r_building,
+                Radius_Glass_Shatter_m: r_glass,
+                Overpressure_50_km: overpressureAt50_km,
+                Wind_Speed_50_km: windspeedAt50_km,
+                Ionization_Radius: r_ionization
+            };
+        })()
+        : null;
 
+    // 6. Tsunami Results
+    const tsunamiResults: Tsunami_Results = tsunamiInfo(inputs, airburst, body)
 
-    const tsunamiResults: Tsunami_Results = tsunamiInfo(inputs, airburst )
-
-    // 6. Return Aggregated Results
     return {
         Strike_Overview: strikeOverview,
         Thermal_Effects: thermalEffects,

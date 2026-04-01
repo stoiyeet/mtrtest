@@ -66,10 +66,10 @@ export type Tsunami_Results = {
 
 export type Damage_Results = {
     Strike_Overview: Strike_Overview,
-    Thermal_Effects: Thermal_Effects,
+    Thermal_Effects: Thermal_Effects | null,
     Crater_Results: Crater_Results,
-    Seismic_Results: Seismic_Results,
-    Waveblast_Results: Waveblast_Results,
+    Seismic_Results: Seismic_Results | null,
+    Waveblast_Results: Waveblast_Results | null,
     Tsunami_Results: Tsunami_Results
 };
 
@@ -104,4 +104,26 @@ export type ImpactEngineInput = {
     impactLocation: ImpactLocation,
     generateReport: boolean
 
+}
+
+export interface CelestialBody {
+    name: string;
+
+    // Physical constants
+
+    gravity: number;
+    radius_M: number;
+    Volume_KM3: number;
+    Diameter_M: number;
+    hasAtmosphere: boolean;
+    hasWater: boolean;
+
+    // Tunable constants
+
+    // Feature flags (controls which effects run)
+    features: {
+        thermal: boolean;
+        seismic: boolean;
+        waveblast: boolean;
+    };
 }
