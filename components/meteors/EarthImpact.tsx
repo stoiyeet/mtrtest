@@ -1,7 +1,7 @@
 'use client';
 
 import * as THREE from 'three';
-import React, { useMemo, useRef, useState, useEffect } from 'react';
+import React, { useMemo, useRef, useState, useEffect, useCallback } from 'react';
 import { useFrame, ThreeEvent, useThree } from '@react-three/fiber';
 import { Html, Line, useGLTF } from '@react-three/drei';
 import { GLTF } from 'three-stdlib';
@@ -192,7 +192,11 @@ export default function EarthImpact({
   const Crater_Results = damage.Crater_Results
   const Strike_Overview = damage.Strike_Overview
 
-  // Initialize audio elements once
+  // Create a helper function that uses the current celestial body's radius
+  // This ensures all distance conversions are relative to the target body
+  const toChordUnits = useCallback((surfaceDistanceM: number): number => {
+    return surfacemToChordUnits(surfaceDistanceM, celestialBody.radius_M);
+  }, [celestialBody.radius_M]);
   useEffect(() => {
     const SOUND_BASE = "https://glb.asteroidstrike.earth/AudioFiles"
     let AIR_TRAVEL_PICK
@@ -530,7 +534,7 @@ export default function EarthImpact({
     { radius: glassShatter,              color: '#0099dd', label: 'Glass Shatters', opacity: 0.20, borderColor: '#44ccff', delay: 0.1, priority: 2 },
   ];
 
-  const blastRadius = surfacemToChordUnits(fireball_radius || 0);
+  const blastRadius = useMemo(() => toChordUnits(fireball_radius || 0), [fireball_radius, toChordUnits]);
   const [isFlashing, setIsFlashing] = useState(false);
 
   // Camera shake on impact - create context for UI shaking
@@ -675,7 +679,7 @@ export default function EarthImpact({
           airburst={Crater_Results.airburst}
           position={impactPos}
           intensity={explosionIntensity}
-          fireballRadius={surfacemToChordUnits(fireball_radius || 0)}
+          fireballRadius={blastRadius}
         />
       )}
 
@@ -692,7 +696,7 @@ export default function EarthImpact({
       {effects.ejecta && t >= impactTime && (
         <mesh position={impactPos.clone().multiplyScalar(1.008)} rotation={ringRotation(impactPos)}>
           <ringGeometry
-            args={[0, surfacemToChordUnits(((Crater_Results.Transient_Diameter || Crater_Results.Final_Diameter || 0) * damageExpansionCurve(0.05))), 64, 1]}
+            args={[0, toChordUnits(((Crater_Results.Transient_Diameter || Crater_Results.Final_Diameter || 0) * damageExpansionCurve(0.05))), 64, 1]}
           />
           <meshBasicMaterial
             color="#aa3322"
@@ -709,11 +713,11 @@ export default function EarthImpact({
           {(() => {
             const wave = damageExpansionCurve(0);
             const reach = buildingCollapseShockwave;
-            const innerR = Math.max(1e-3, surfacemToChordUnits(reach * 0.90 * wave));
-            const outerR = surfacemToChordUnits(reach * 1.00 * wave);
-            const fillR  = Math.max(1e-3, surfacemToChordUnits(reach * 0.90 * wave));
-            const pulseInner = surfacemToChordUnits(reach * 1.00 * wave);
-            const pulseOuter = surfacemToChordUnits(reach * 1.15 * wave);
+            const innerR = Math.max(1e-3, toChordUnits(reach * 0.90 * wave));
+            const outerR = toChordUnits(reach * 1.00 * wave);
+            const fillR  = Math.max(1e-3, toChordUnits(reach * 0.90 * wave));
+            const pulseInner = toChordUnits(reach * 1.00 * wave);
+            const pulseOuter = toChordUnits(reach * 1.15 * wave);
 
             return (
               <>
@@ -762,11 +766,11 @@ export default function EarthImpact({
           {(() => {
             const wave = damageExpansionCurve(0.1);
             const reach = glassShatter;
-            const innerR = Math.max(1e-3, surfacemToChordUnits(reach * 0.95 * wave));
-            const outerR = surfacemToChordUnits(reach * 1.00 * wave);
-            const fillR  = Math.max(1e-3, surfacemToChordUnits(reach * 0.95 * wave));
-            const pulseInner = surfacemToChordUnits(reach * 1.00 * wave);
-            const pulseOuter = surfacemToChordUnits(reach * 1.20 * wave);
+            const innerR = Math.max(1e-3, toChordUnits(reach * 0.95 * wave));
+            const outerR = toChordUnits(reach * 1.00 * wave);
+            const fillR  = Math.max(1e-3, toChordUnits(reach * 0.95 * wave));
+            const pulseInner = toChordUnits(reach * 1.00 * wave);
+            const pulseOuter = toChordUnits(reach * 1.20 * wave);
 
             return (
               <>
@@ -824,6 +828,7 @@ export default function EarthImpact({
             priority={zone.priority}
             type="thermal"
             index={i}
+            toChordUnits={toChordUnits}
           />
         ) : null
       )}
@@ -843,13 +848,14 @@ export default function EarthImpact({
             priority={zone.priority}
             type="pressure"
             index={i}
+            toChordUnits={toChordUnits}
           />
         ) : null
       )}
         </>
       )}
 
-      {tsunamiRadius > 0 && t >= impactTime && (
+      {tsunamiRadius > 0 && t >= impactTime && celestialBody.hasWater && celestialBody.features.waveblast && (
         <TsunamiWaves
           position={impactPos}
           height={tsunamiRadius}
@@ -890,6 +896,7 @@ function EnhancedDamageDisk({
   priority = 1,
   type,
   index,
+  toChordUnits,
 }: {
   position: THREE.Vector3;
   kmRadius: number;
@@ -901,8 +908,9 @@ function EnhancedDamageDisk({
   priority?: number;
   type: string;
   index: number;
+  toChordUnits: (m: number) => number;
 }) {
-  const currentRadius = surfacemToChordUnits(kmRadius) * expansionFactor;
+  const currentRadius = toChordUnits(kmRadius) * expansionFactor;
   if (currentRadius < 0.001) return null;
 
   const inner = Math.max(currentRadius - 0.006, 0);

@@ -110,7 +110,6 @@ export interface CelestialBody {
     name: string;
 
     // Physical constants
-
     gravity: number;
     radius_M: number;
     Volume_KM3: number;
@@ -118,7 +117,24 @@ export interface CelestialBody {
     hasAtmosphere: boolean;
     hasWater: boolean;
 
-    // Tunable constants
+    // Rendering configuration
+    textureUrls?: {
+        day: string;
+        normal: string | null;
+        specular: string | null;
+    };
+    materialConfig?: {
+        shininess: number;
+        bumpScale: number;
+        emissiveIntensity: number;
+        cloudIntensity: number;
+    };
+    atmosphereColors?: {
+        inner: string;
+        outer: string;
+        innerOpacity: number;
+        outerOpacity: number;
+    };
 
     // Feature flags (controls which effects run)
     features: {
