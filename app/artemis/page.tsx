@@ -1,6 +1,4 @@
-'use client'; 
-
-import { Suspense, useEffect } from 'react';
+import { Suspense } from 'react';
 import ArtemisClient from './ArtemisClient';
 
 export const metadata = {
@@ -13,17 +11,6 @@ export const metadata = {
   },
 };
 
-  // --- Visit counting logic ---
-  useEffect(() => {
-    const hasVisited = document.cookie.split("; ").find(row => row.startsWith("visited="));
-    if (!hasVisited) {
-      // first visit -> increment counter
-      fetch("/api/visits", { method: "POST" });
-      const expires = new Date();
-      expires.setHours(expires.getHours() + 24);
-      document.cookie = `visited=true; path=/; expires=${expires.toUTCString()}`;
-    }
-  }, []);
 
 export default function ArtemisPage() {
   return (

@@ -57,6 +57,17 @@ export default function Home(): React.ReactElement {
     return () => cancelAnimationFrame(raf);
   }, []);
 
+  useEffect(() => {
+    const hasVisited = document.cookie.split("; ").find(row => row.startsWith("visited="));
+    if (!hasVisited) {
+      // first visit -> increment counter
+      fetch("/api/visits", { method: "POST" });
+      const expires = new Date();
+      expires.setHours(expires.getHours() + 24);
+      document.cookie = `visited=true; path=/; expires=${expires.toUTCString()}`;
+    }
+  }, []);
+
   return (
     <main className="relative w-full h-screen bg-black text-white overflow-hidden">
       {/* API Link */}
