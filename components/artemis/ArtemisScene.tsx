@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useState, useEffect, useMemo } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls, Stars, useGLTF, PerspectiveCamera } from '@react-three/drei';
 import * as THREE from 'three';
 import {earthBody, moonBody} from "@/lib/CelestialBodies"
@@ -23,22 +23,21 @@ useGLTF.preload('https://glb.asteroidstrike.earth/artemis1.glb');
 
 function ArtemisSpacecraft({
   onClick,
-  onHover,
   animationProgress,
   isAnimating,
   flightCurve,
-  onPositionUpdate
+  onPositionUpdate,
+  isHovering
 }: {
   onClick: () => void;
-  onHover: (hovered: boolean) => void;
   animationProgress: number;
   isAnimating: boolean;
   flightCurve: THREE.CatmullRomCurve3;
   onPositionUpdate: (position: THREE.Vector3) => void;
+  isHovering: boolean;
 }) {
   const { scene } = useGLTF('https://glb.asteroidstrike.earth/artemis1.glb');
   const spacecraftRef = useRef<THREE.Group>(null);
-  const [hovered, setHovered] = useState(false);
 
   // Clone the scene to avoid issues with multiple instances
   const clonedScene = useMemo(() => scene.clone(), [scene]);
@@ -52,9 +51,6 @@ function ArtemisSpacecraft({
 
         // Orient along path tangent (Y-axis points along tangent)
         spacecraftRef.current.quaternion.copy(flightState.quaternion);
-
-        // Report position to parent for trail tracking
-        onPositionUpdate(spacecraftRef.current.position.clone());
       } else {
         // Static position before animation starts
         spacecraftRef.current.position.set(4, 3, 2);
@@ -63,8 +59,11 @@ function ArtemisSpacecraft({
         spacecraftRef.current.rotation.y += 0.003;
       }
 
-      // Scale up slightly on hover
-      const targetScale = hovered ? 0.015 : 0.006;
+      // Report position to parent for hover proximity checks at all times
+      onPositionUpdate(spacecraftRef.current.position.clone());
+
+      // Scale up slightly when proximity hover is active
+      const targetScale = isHovering ? 0.015 : 0.006;
       spacecraftRef.current.scale.lerp(
         new THREE.Vector3(targetScale, targetScale, targetScale),
         0.1
@@ -73,32 +72,18 @@ function ArtemisSpacecraft({
   });
 
   useEffect(() => {
-    // Set cursor style
-    document.body.style.cursor = hovered ? 'pointer' : 'auto';
+    // Set cursor style for proximity hover
+    document.body.style.cursor = isHovering ? 'pointer' : 'auto';
     return () => {
       document.body.style.cursor = 'auto';
     };
-  }, [hovered]);
+  }, [isHovering]);
 
   return (
     <primitive
       ref={spacecraftRef}
       object={clonedScene}
       scale={0.012}
-      onClick={(e: any) => {
-        e.stopPropagation();
-        onClick();
-      }}
-      onPointerOver={(e: any) => {
-        e.stopPropagation();
-        setHovered(true);
-        onHover(true);
-      }}
-      onPointerOut={(e: any) => {
-        e.stopPropagation();
-        setHovered(false);
-        onHover(false);
-      }}
     />
   );
 }
@@ -236,6 +221,10 @@ function Scene({
 }: ArtemisSceneProps) {
   const [pathLoaded, setPathLoaded] = useState(false);
   const [spacecraftPosition, setSpacecraftPosition] = useState<THREE.Vector3 | null>(null);
+  const [spacecraftHover, setSpacecraftHover] = useState(false);
+  const { camera } = useThree();
+
+  const PROXIMITY_THRESHOLD = 0.30; // world-space units, tweak as needed
 
   // Load path coordinates on mount
   useEffect(() => {
@@ -244,13 +233,51 @@ function Scene({
     });
   }, []);
 
-  const handleSpacecraftHover = (hovered: boolean) => {
-    onHoverChange(hovered ? 'Artemis Spacecraft' : null);
-  };
-
   const handlePositionUpdate = (position: THREE.Vector3) => {
     setSpacecraftPosition(position);
   };
+
+  const updateProximityStatus = (clientX: number, clientY: number) => {
+    if (!spacecraftPosition || !camera) {
+      setSpacecraftHover(false);
+      onHoverChange(null);
+      return;
+    }
+
+    const mouse = new THREE.Vector2(
+      (clientX / window.innerWidth) * 2 - 1,
+      -(clientY / window.innerHeight) * 2 + 1
+    );
+
+    const raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(mouse, camera);
+
+    const closestPoint = new THREE.Vector3();
+    raycaster.ray.closestPointToPoint(spacecraftPosition, closestPoint);
+    const distance = closestPoint.distanceTo(spacecraftPosition);
+
+    const nowHover = distance <= PROXIMITY_THRESHOLD;
+    setSpacecraftHover(nowHover);
+    onHoverChange(nowHover ? 'Artemis Spacecraft' : null);
+  };
+
+  useEffect(() => {
+    const onMove = (e: PointerEvent) => updateProximityStatus(e.clientX, e.clientY);
+    const onDown = (e: PointerEvent) => {
+      updateProximityStatus(e.clientX, e.clientY);
+      if (spacecraftHover) {
+        onSpacecraftClick();
+      }
+    };
+
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerdown', onDown);
+
+    return () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerdown', onDown);
+    };
+  }, [spacecraftHover, spacecraftPosition, camera]);
 
   // Create flight curve once path is loaded
   const flightCurve = useMemo(() => {
@@ -311,7 +338,7 @@ function Scene({
       {/* Artemis spacecraft */}
       <ArtemisSpacecraft
         onClick={onSpacecraftClick}
-        onHover={handleSpacecraftHover}
+        isHovering={spacecraftHover}
         animationProgress={animationProgress}
         isAnimating={isAnimating}
         flightCurve={flightCurve}
