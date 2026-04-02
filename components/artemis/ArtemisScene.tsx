@@ -111,12 +111,6 @@ function FlightPath({
 }) {
   const lineRef = useRef<THREE.Line>(null);
 
-  // Create line geometry
-  const geometry = useMemo(() => {
-    const points = flightCurve.getPoints(200);
-    return new THREE.BufferGeometry().setFromPoints(points);
-  }, [flightCurve]);
-
   // Create glowing material
   const material = useMemo(() => {
     return new THREE.LineBasicMaterial({
@@ -127,6 +121,16 @@ function FlightPath({
     });
   }, []);
 
+  // Initialize line object
+  useEffect(() => {
+    if (!lineRef.current) {
+      const geometry = new THREE.BufferGeometry().setFromPoints(
+        flightCurve.getPoints(200)
+      );
+      lineRef.current = new THREE.Line(geometry, material);
+    }
+  }, [flightCurve, material]);
+
   useFrame(() => {
     if (lineRef.current && isAnimating) {
       // Update line to show progressive drawing
@@ -135,7 +139,7 @@ function FlightPath({
 
       if (visiblePoints > 0) {
         const points = flightCurve.getPoints(totalPoints).slice(0, visiblePoints);
-        lineRef.current.geometry.setFromPoints(points);
+        (lineRef.current.geometry as THREE.BufferGeometry).setFromPoints(points);
       }
     }
   });
@@ -144,7 +148,7 @@ function FlightPath({
 
   return (
     <>
-      <line ref={lineRef} geometry={geometry} material={material} />
+      {lineRef.current && <primitive object={lineRef.current} />}
 
       {/* Glowing tube for better visibility */}
       <mesh>

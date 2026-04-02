@@ -38,36 +38,31 @@ const SEGMENTS: PathSegment[] = [
 ];
 
 /**
- * Generate a circular loop around Earth at specified altitude and inclination
+ * Generate a helix around Earth (descending spiral)
  */
-function generateEarthLoop(
+function generateHelix(
   radius: number,
   numPoints: number,
-  startAngle: number,
-  inclination: number, // 0 = equatorial, PI/2 = polar
-  phaseOffset: number = 0
+  startHeight: number,
+  endHeight: number,
+  numTurns: number
 ): THREE.Vector3[] {
   const points: THREE.Vector3[] = [];
 
   for (let i = 0; i < numPoints; i++) {
-    const angle = startAngle + (Math.PI * 2 * i) / numPoints;
+    const t = i / (numPoints - 1);
+    const angle = numTurns * Math.PI * 2 * t;
 
-    // Create point in orbital plane
+    // Helix around Earth
     const x = radius * Math.cos(angle);
-    const y = radius * Math.sin(angle) * Math.sin(inclination);
-    const z = radius * Math.sin(angle) * Math.cos(inclination);
-
-    // Rotate around Earth's axis for phase offset
-    const cosP = Math.cos(phaseOffset);
-    const sinP = Math.sin(phaseOffset);
-    const rotatedX = x * cosP - z * sinP;
-    const rotatedZ = x * sinP + z * cosP;
+    const z = radius * Math.sin(angle);
+    const y = startHeight + (endHeight - startHeight) * t;
 
     // Translate to Earth's position
     points.push(new THREE.Vector3(
-      EARTH_POS.x + rotatedX,
-      EARTH_POS.y + y,
-      EARTH_POS.z + rotatedZ
+      EARTH_POS.x + x,
+      y,
+      EARTH_POS.z + z
     ));
   }
 
@@ -75,13 +70,40 @@ function generateEarthLoop(
 }
 
 /**
- * Generate Moon flyby arc around far side
+ * Generate a flat circular orbit around Earth
+ */
+function generateCircularOrbit(
+  radius: number,
+  numPoints: number,
+  height: number,
+  startAngle: number = 0
+): THREE.Vector3[] {
+  const points: THREE.Vector3[] = [];
+
+  for (let i = 0; i < numPoints; i++) {
+    const angle = startAngle + (Math.PI * 2 * i) / numPoints;
+
+    const x = radius * Math.cos(angle);
+    const z = radius * Math.sin(angle);
+
+    points.push(new THREE.Vector3(
+      EARTH_POS.x + x,
+      height,
+      EARTH_POS.z + z
+    ));
+  }
+
+  return points;
+}
+
+/**
+ * Generate Moon flyby arc around far side at [5, 0, 0]
  */
 function generateMoonFlyby(numPoints: number): THREE.Vector3[] {
   const points: THREE.Vector3[] = [];
-  const flybyRadius = 0.6; // 0.6 units from Moon center (double Moon's radius)
+  const flybyRadius = 1; // 0.6 units from Moon center (double Moon's radius)
 
-  // Arc from ~120° to ~240° (far side, away from Earth)
+  // Arc from ~120° to ~240° (far side, away from Earth at negative X)
   const startAngle = (2 * Math.PI) / 3; // 120°
   const endAngle = (4 * Math.PI) / 3; // 240°
 
@@ -89,15 +111,15 @@ function generateMoonFlyby(numPoints: number): THREE.Vector3[] {
     const t = i / (numPoints - 1);
     const angle = startAngle + (endAngle - startAngle) * t;
 
-    // Circular arc in XY plane
+    // Circular arc around Moon in XZ plane (mostly flat)
     const x = flybyRadius * Math.cos(angle);
-    const y = flybyRadius * Math.sin(angle) * 0.3; // Slight vertical component
     const z = flybyRadius * Math.sin(angle);
+    const y = 0.1 * Math.sin(t * Math.PI); // Slight vertical wave
 
     points.push(new THREE.Vector3(
-      MOON_POS.x + x,
-      MOON_POS.y + y,
-      MOON_POS.z + z
+      MOON_POS.x - x,
+      y,
+      MOON_POS.z - z
     ));
   }
 
@@ -149,106 +171,68 @@ function generateTransition(
 export function generateArtemisFlightPath(): THREE.Vector3[] {
   const allPoints: THREE.Vector3[] = [];
 
-  // SEGMENT 1: Loop 1 - Narrow, high latitude (top quartile)
-  // Radius: 1.5 Earth radii, high inclination
-  const loop1 = generateEarthLoop(
-    EARTH_RADIUS * 1.5,
+  // SEGMENT 1: Loop 1 - High helix (1 turn, descending from Y=2 to Y=1)
+  const loop1 = generateHelix(
+    EARTH_RADIUS * 1.3,
     20,
-    0, // Start at 0°
-    Math.PI / 3, // 60° inclination (top quartile)
-    0
+    0.7,  // start at Y = 2
+    0.4,  // end at Y = 1
+    1     // 1 full turn
   );
   allPoints.push(...loop1);
 
-  // SEGMENT 2: Loop 2 - Medium, equatorial
-  // Radius: 2 Earth radii, lower inclination
-  const loop2Start = loop1[loop1.length - 1];
-  const loop2Points = generateEarthLoop(
-    EARTH_RADIUS * 2.0,
+  const loop2 = generateHelix(
+    EARTH_RADIUS * 2.0,  // radius 2.0 (wider)
     30,
-    Math.PI * 0.2, // Offset start angle
-    Math.PI / 6, // 30° inclination (more equatorial)
-    Math.PI / 4 // Phase rotation
+    0.4,  // start at Y = 1
+    0.0,  // end at Y = 0
+    1     // 1 full turn
   );
+  allPoints.push(...loop2);
 
-  // Smooth transition from loop1 to loop2
-  const transition1 = generateTransition(
-    loop2Start,
-    loop2Points[0],
-    5,
-    new THREE.Vector3(0, 0.5, 0.5),
-    new THREE.Vector3(0, -0.3, -0.3)
-  );
-  allPoints.push(...transition1.slice(1)); // Skip duplicate first point
-  allPoints.push(...loop2Points);
-
-  // SEGMENT 3: Loop 3 - Wide, preparing for trans-lunar injection
-  // Radius: 3 Earth radii (1R above surface), nearly equatorial
-  const loop3Start = loop2Points[loop2Points.length - 1];
-  const loop3Points = generateEarthLoop(
-    EARTH_RADIUS * 3.0,
+  // SEGMENT 3: Loop 3 - Flat wide circle at Y=0
+  const loop3 = generateCircularOrbit(
+    EARTH_RADIUS * 3.0,  // radius 3.0 (widest)
     40,
-    Math.PI * 0.5,
-    Math.PI / 12, // 15° inclination (nearly equatorial)
-    Math.PI / 2 // Different phase
+    0.0  // flat at Y = 0
   );
+  allPoints.push(...loop3);
 
-  const transition2 = generateTransition(
-    loop3Start,
-    loop3Points[0],
-    5,
-    new THREE.Vector3(0.5, 0, 1),
-    new THREE.Vector3(-0.5, 0, -0.5)
-  );
-  allPoints.push(...transition2.slice(1));
-  allPoints.push(...loop3Points);
-
-  // SEGMENT 4: Trans-Lunar Injection
-  // Smooth curve from Earth orbit to Moon vicinity
-  const tliStart = loop3Points[loop3Points.length - 1];
+  // SEGMENT 4: Trans-Lunar Injection - shoot toward Moon
+  const tliStart = loop3[loop3.length - 1];
   const moonApproach = new THREE.Vector3(
-    MOON_POS.x - 1.5, // Approach from Earth side
-    MOON_POS.y + 0.5,
-    MOON_POS.z - 1
+    MOON_POS.x - 0.8,  // Approach from Earth side
+    0.3,               // Slight upward
+    MOON_POS.z - 0.5
   );
 
   const tliCurve = generateTransition(
     tliStart,
     moonApproach,
     50,
-    new THREE.Vector3(2, 1, 0), // Control point pushes outward and up
-    new THREE.Vector3(-0.5, 0.3, 0.5) // Control point near Moon
+    new THREE.Vector3(2, 0.5, 0),     // Push away from Earth and up
+    new THREE.Vector3(-0.5, 0.2, 0.3)  // Approach Moon
   );
   allPoints.push(...tliCurve.slice(1));
 
   // SEGMENT 5: Moon Far Side Flyby
   const moonFlyby = generateMoonFlyby(30);
-
-  // Transition to flyby
-  const transition4 = generateTransition(
-    moonApproach,
-    moonFlyby[0],
-    5,
-    new THREE.Vector3(0.3, 0, 0.3),
-    new THREE.Vector3(-0.2, 0, -0.2)
-  );
-  allPoints.push(...transition4.slice(1));
   allPoints.push(...moonFlyby);
 
-  // SEGMENT 6: Return to Pacific Ocean (Earth)
+  // SEGMENT 6: Return to Pacific Ocean (Earth) - higher Y for splashdown
   const returnStart = moonFlyby[moonFlyby.length - 1];
   const pacificEntry = new THREE.Vector3(
-    EARTH_POS.x - 0.5, // Approach from slightly offset angle
-    EARTH_POS.y - 0.3, // Descending
-    EARTH_POS.z + 1.2  // Pacific side (positive Z)
+    EARTH_POS.x - 0.3,  // Pacific side of Earth
+    0.8,                // Higher Y for descent angle
+    EARTH_POS.z + 1.5   // Positive Z (Pacific)
   );
 
   const returnCurve = generateTransition(
     returnStart,
     pacificEntry,
     30,
-    new THREE.Vector3(-1, 0.2, 0.5), // Arc high and away
-    new THREE.Vector3(0.2, -0.5, -0.3) // Descend toward Pacific
+    new THREE.Vector3(-1, 0.5, 0.5),   // Arc away from Moon
+    new THREE.Vector3(0.3, -0.3, -0.5) // Descend to Pacific
   );
   allPoints.push(...returnCurve.slice(1));
 
