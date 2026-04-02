@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, Suspense } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import dynamic from 'next/dynamic';
 import { artemisData, type ArtemisMission } from '@/lib/artemisData';
 import ArtemisInfo from '@/components/artemis/ArtemisInfo';
@@ -21,8 +21,40 @@ export default function ArtemisClient() {
   const [isInfoVisible, setIsInfoVisible] = useState(false);
   const [hoveredObject, setHoveredObject] = useState<string | null>(null);
 
+  // Timeline state
+  const [t, setT] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const [animationStarted, setAnimationStarted] = useState(false);
+
+  // Animation loop (30 seconds default)
+  useEffect(() => {
+    if (!playing) return;
+    let raf = 0;
+    const tick = () => {
+      setT((prev) => {
+        const next = prev + 0.001; // ~30 seconds for full animation
+        return next > 1 ? 1 : next;
+      });
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [playing]);
+
+  // Auto-stop at end
+  useEffect(() => {
+    if (t >= 1) setPlaying(false);
+  }, [t]);
+
   const handleSpacecraftClick = () => {
-    // Show Artemis II mission by default (current/upcoming mission)
+    // If animation hasn't started, start it
+    if (!animationStarted) {
+      setAnimationStarted(true);
+      setPlaying(true);
+      return;
+    }
+
+    // Otherwise show mission info
     const artemisII = artemisData.missions.find(m => m.name === 'Artemis II');
     setSelectedMission(artemisII || artemisData.missions[1]);
     setIsInfoVisible(true);
@@ -38,6 +70,17 @@ export default function ArtemisClient() {
     setSelectedMission(null);
   };
 
+  const handleStartAnimation = () => {
+    setAnimationStarted(true);
+    setPlaying(true);
+    setT(0);
+  };
+
+  const handleResetAnimation = () => {
+    setT(0);
+    setPlaying(false);
+  };
+
   return (
     <div className={styles.container}>
       {/* 3D Scene */}
@@ -46,12 +89,20 @@ export default function ArtemisClient() {
           <ArtemisScene
             onSpacecraftClick={handleSpacecraftClick}
             onHoverChange={setHoveredObject}
+            animationProgress={t}
+            isAnimating={animationStarted}
           />
         </Suspense>
       </div>
 
-      {/* Hover tooltip */}
-      {hoveredObject && !isInfoVisible && (
+      {/* Hover tooltip / Start prompt */}
+      {!animationStarted && hoveredObject && !isInfoVisible && (
+        <div className={styles.hoverTooltip}>
+          <p>Click to start Artemis I flight path</p>
+        </div>
+      )}
+
+      {hoveredObject && animationStarted && !isInfoVisible && (
         <div className={styles.hoverTooltip}>
           <p>Click to learn more about {hoveredObject}</p>
         </div>
@@ -100,6 +151,73 @@ export default function ArtemisClient() {
           <span>Preparing for Mars</span>
         </div>
       </div>
+
+      {/* Timeline controls - bottom bar */}
+      {animationStarted && (
+        <div className={styles.timelineBar}>
+          <div className={styles.timelineInner}>
+            {!playing ? (
+              <button
+                onClick={handleStartAnimation}
+                className={styles.timelineButton}
+                title="Start animation"
+              >
+                ▶
+              </button>
+            ) : (
+              <button
+                onClick={() => setPlaying(false)}
+                className={styles.timelineButton}
+                title="Pause animation"
+              >
+                ⏸
+              </button>
+            )}
+
+            <div className={styles.timelineSlider}>
+              <span className={styles.timelineLabel}>Launch</span>
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.001"
+                value={t}
+                onChange={(e) => setT(parseFloat(e.target.value))}
+                className={styles.timelineInput}
+              />
+              <span className={styles.timelineLabel}>Splashdown</span>
+            </div>
+
+            <button
+              onClick={handleResetAnimation}
+              className={styles.timelineButton}
+              title="Reset"
+            >
+              ↻
+            </button>
+
+            <div className={styles.timelineStatus}>
+              {t < 0.10 && 'Loop 1'}
+              {t >= 0.10 && t < 0.25 && 'Loop 2'}
+              {t >= 0.25 && t < 0.45 && 'Loop 3'}
+              {t >= 0.45 && t < 0.70 && 'Trans-Lunar'}
+              {t >= 0.70 && t < 0.85 && 'Moon Flyby'}
+              {t >= 0.85 && 'Return'}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Start button (before animation starts) */}
+      {!animationStarted && (
+        <div className={styles.startPrompt}>
+          <button onClick={handleStartAnimation} className={styles.startButton}>
+            <span className={styles.startIcon}>🚀</span>
+            <span>Start Artemis I Flight</span>
+          </button>
+          <p className={styles.startHint}>Or click the spacecraft</p>
+        </div>
+      )}
     </div>
   );
 }

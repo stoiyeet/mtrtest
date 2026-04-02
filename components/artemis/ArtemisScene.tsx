@@ -1,16 +1,19 @@
 'use client';
 
-import React, { useRef, useState, useEffect } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { OrbitControls, Stars, useGLTF, useTexture, PerspectiveCamera } from '@react-three/drei';
+import React, { useRef, useState, useEffect, useMemo } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { OrbitControls, Stars, useGLTF, PerspectiveCamera } from '@react-three/drei';
 import * as THREE from 'three';
 import {earthBody, moonBody} from "@/lib/CelestialBodies"
 import SpaceBody from "@/components/SpaceBody";
+import { createFlightCurve, getFlightState } from '@/lib/artemisFlightPath';
 
 
 interface ArtemisSceneProps {
   onSpacecraftClick: () => void;
   onHoverChange: (object: string | null) => void;
+  animationProgress: number;
+  isAnimating: boolean;
 }
 
 // Preload the Artemis model
@@ -18,19 +21,42 @@ useGLTF.preload('https://glb.asteroidstrike.earth/artemis1.glb');
 
 
 
-function ArtemisSpacecraft({ onClick, onHover }: { onClick: () => void; onHover: (hovered: boolean) => void }) {
+function ArtemisSpacecraft({
+  onClick,
+  onHover,
+  animationProgress,
+  isAnimating,
+  flightCurve
+}: {
+  onClick: () => void;
+  onHover: (hovered: boolean) => void;
+  animationProgress: number;
+  isAnimating: boolean;
+  flightCurve: THREE.CatmullRomCurve3;
+}) {
   const { scene } = useGLTF('https://glb.asteroidstrike.earth/artemis1.glb');
   const spacecraftRef = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
 
   // Clone the scene to avoid issues with multiple instances
-  const clonedScene = scene.clone();
+  const clonedScene = useMemo(() => scene.clone(), [scene]);
 
   useFrame((state) => {
     if (spacecraftRef.current) {
-      // Gentle floating animation
-      spacecraftRef.current.position.y = 3 + Math.sin(state.clock.elapsedTime * 0.5) * 0.2;
-      spacecraftRef.current.rotation.y += 0.003;
+      if (isAnimating) {
+        // Follow flight path
+        const flightState = getFlightState(flightCurve, animationProgress);
+        spacecraftRef.current.position.copy(flightState.position);
+
+        // Orient along path tangent (Y-axis points along tangent)
+        spacecraftRef.current.quaternion.copy(flightState.quaternion);
+      } else {
+        // Static position before animation starts
+        spacecraftRef.current.position.set(4, 3, 2);
+        // Gentle floating animation
+        spacecraftRef.current.position.y = 3 + Math.sin(state.clock.elapsedTime * 0.5) * 0.2;
+        spacecraftRef.current.rotation.y += 0.003;
+      }
 
       // Scale up slightly on hover
       const targetScale = hovered ? 0.015 : 0.012;
@@ -53,7 +79,6 @@ function ArtemisSpacecraft({ onClick, onHover }: { onClick: () => void; onHover:
     <primitive
       ref={spacecraftRef}
       object={clonedScene}
-      position={[4, 3, 2]}
       scale={0.012}
       onClick={(e: any) => {
         e.stopPropagation();
@@ -74,6 +99,68 @@ function ArtemisSpacecraft({ onClick, onHover }: { onClick: () => void; onHover:
 }
 
 
+
+function FlightPath({
+  flightCurve,
+  animationProgress,
+  isAnimating
+}: {
+  flightCurve: THREE.CatmullRomCurve3;
+  animationProgress: number;
+  isAnimating: boolean;
+}) {
+  const lineRef = useRef<THREE.Line>(null);
+
+  // Create line geometry
+  const geometry = useMemo(() => {
+    const points = flightCurve.getPoints(200);
+    return new THREE.BufferGeometry().setFromPoints(points);
+  }, [flightCurve]);
+
+  // Create glowing material
+  const material = useMemo(() => {
+    return new THREE.LineBasicMaterial({
+      color: new THREE.Color(0x00ccff),
+      linewidth: 2,
+      transparent: true,
+      opacity: 0.8,
+    });
+  }, []);
+
+  useFrame(() => {
+    if (lineRef.current && isAnimating) {
+      // Update line to show progressive drawing
+      const totalPoints = 200;
+      const visiblePoints = Math.floor(totalPoints * animationProgress);
+
+      if (visiblePoints > 0) {
+        const points = flightCurve.getPoints(totalPoints).slice(0, visiblePoints);
+        lineRef.current.geometry.setFromPoints(points);
+      }
+    }
+  });
+
+  if (!isAnimating) return null;
+
+  return (
+    <>
+      <line ref={lineRef} geometry={geometry} material={material} />
+
+      {/* Glowing tube for better visibility */}
+      <mesh>
+        <tubeGeometry
+          args={[flightCurve, 200, 0.02, 8, false]}
+        />
+        <meshBasicMaterial
+          color={0x00ccff}
+          transparent
+          opacity={isAnimating ? 0.4 : 0}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+    </>
+  );
+}
 
 function Lighting() {
   return (
@@ -102,10 +189,18 @@ function Lighting() {
   );
 }
 
-function Scene({ onSpacecraftClick, onHoverChange }: ArtemisSceneProps) {
+function Scene({
+  onSpacecraftClick,
+  onHoverChange,
+  animationProgress,
+  isAnimating
+}: ArtemisSceneProps) {
   const handleSpacecraftHover = (hovered: boolean) => {
     onHoverChange(hovered ? 'Artemis Spacecraft' : null);
   };
+
+  // Create flight curve once
+  const flightCurve = useMemo(() => createFlightCurve(), []);
 
   return (
     <>
@@ -132,22 +227,35 @@ function Scene({ onSpacecraftClick, onHoverChange }: ArtemisSceneProps) {
         speed={1}
       />
 
-      
-
       {/* Celestial bodies */}
-      <SpaceBody celestialBody={moonBody} position={[0,0,0]} />
+      <SpaceBody celestialBody={moonBody} position={[5,0,0]} />
+      <SpaceBody celestialBody={earthBody} position={[-3, 0, 0]}/>
 
-      <SpaceBody celestialBody={earthBody} position={[-8, 0, 0]}/>
+      {/* Flight path */}
+      <FlightPath
+        flightCurve={flightCurve}
+        animationProgress={animationProgress}
+        isAnimating={isAnimating}
+      />
+
       {/* Artemis spacecraft */}
       <ArtemisSpacecraft
         onClick={onSpacecraftClick}
         onHover={handleSpacecraftHover}
+        animationProgress={animationProgress}
+        isAnimating={isAnimating}
+        flightCurve={flightCurve}
       />
     </>
   );
 }
 
-export default function ArtemisScene({ onSpacecraftClick, onHoverChange }: ArtemisSceneProps) {
+export default function ArtemisScene({
+  onSpacecraftClick,
+  onHoverChange,
+  animationProgress,
+  isAnimating
+}: ArtemisSceneProps) {
   return (
     <Canvas
       gl={{
@@ -163,6 +271,8 @@ export default function ArtemisScene({ onSpacecraftClick, onHoverChange }: Artem
       <Scene
         onSpacecraftClick={onSpacecraftClick}
         onHoverChange={onHoverChange}
+        animationProgress={animationProgress}
+        isAnimating={isAnimating}
       />
     </Canvas>
   );

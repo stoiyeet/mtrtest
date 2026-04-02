@@ -242,3 +242,195 @@
   font-size: 18px;
   color: rgba(255, 255, 255, 0.8);
 }
+
+/* Timeline controls */
+.timelineBar {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 15;
+  background: rgba(15, 15, 20, 0.9);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 12px 20px;
+  min-width: 500px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.timelineInner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.timelineButton {
+  background: rgba(0, 204, 255, 0.2);
+  border: 1px solid rgba(0, 204, 255, 0.4);
+  border-radius: 8px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #00ccff;
+  font-size: 18px;
+  transition: all 0.2s ease;
+}
+
+.timelineButton:hover {
+  background: rgba(0, 204, 255, 0.3);
+  border-color: #00ccff;
+  transform: scale(1.05);
+}
+
+.timelineSlider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.timelineLabel {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.timelineInput {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.1);
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+}
+
+.timelineInput::-webkit-slider-thumb {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #00ccff;
+  cursor: pointer;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 10px rgba(0, 204, 255, 0.5);
+}
+
+.timelineInput::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #00ccff;
+  cursor: pointer;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 10px rgba(0, 204, 255, 0.5);
+}
+
+.timelineStatus {
+  font-size: 12px;
+  font-weight: 600;
+  color: #00ccff;
+  min-width: 100px;
+  text-align: center;
+}
+
+/* Start prompt */
+.startPrompt {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 15;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.startButton {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 32px;
+  background: linear-gradient(135deg, rgba(0, 204, 255, 0.3) 0%, rgba(0, 153, 255, 0.3) 100%);
+  border: 2px solid #00ccff;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 20px rgba(0, 204, 255, 0.3);
+}
+
+.startButton:hover {
+  background: linear-gradient(135deg, rgba(0, 204, 255, 0.5) 0%, rgba(0, 153, 255, 0.5) 100%);
+  transform: scale(1.05);
+  box-shadow: 0 0 30px rgba(0, 204, 255, 0.5);
+}
+
+.startIcon {
+  font-size: 24px;
+  animation: bounce 1s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.startHint {
+  margin: 0;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+  text-align: center;
+}
+
+/* Mobile responsiveness for timeline */
+@media (max-width: 768px) {
+  .timelineBar {
+    left: 10px;
+    right: 10px;
+    min-width: 0;
+    transform: none;
+    padding: 10px 12px;
+  }
+
+  .timelineInner {
+    gap: 8px;
+  }
+
+  .timelineButton {
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+  }
+
+  .timelineStatus {
+    font-size: 11px;
+    min-width: 80px;
+  }
+
+  .startButton {
+    padding: 12px 24px;
+    font-size: 16px;
+  }
+
+  .startPrompt {
+    bottom: 15px;
+    left: 10px;
+    right: 10px;
+    transform: none;
+  }
+}
