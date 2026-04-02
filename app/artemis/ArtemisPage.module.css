@@ -231,7 +231,7 @@
   backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
-  padding: 12px 20px;
+  padding: 6px 20px;
   min-width: 500px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
@@ -246,14 +246,14 @@
   background: rgba(0, 204, 255, 0.2);
   border: 1px solid rgba(0, 204, 255, 0.4);
   border-radius: 8px;
-  width: 40px;
-  height: 40px;
+  width: 34px;
+  height: 34px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   color: #00ccff;
-  font-size: 18px;
+  font-size: 16px;
   transition: all 0.2s ease;
 }
 
@@ -271,7 +271,7 @@
 }
 
 .timelineLabel {
-  font-size: 11px;
+  font-size: 8px;
   color: rgba(255, 255, 255, 0.6);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -544,7 +544,7 @@
   .startButton {
     position: static;
     padding: 10px 20px;
-    font-size: 14px;
+    font-size: 12px;
     gap: 8px;
     border-radius: 10px;
   }
@@ -756,7 +756,7 @@
 
   .timelineButton {
     width: 36px;
-    height: 36px;
+    height: 26px;
     font-size: 16px;
   }
 

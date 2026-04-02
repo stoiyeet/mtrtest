@@ -108,9 +108,9 @@ function FlightPath({
   const staticMaterial = useMemo(() => {
     return new THREE.LineBasicMaterial({
       color: new THREE.Color(0xaaaaaa),
-      linewidth: 1,
+      linewidth: 2,
       transparent: true,
-      opacity: 0.15,
+      opacity: 0.25,
     });
   }, []);
 
