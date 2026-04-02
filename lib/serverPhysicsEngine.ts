@@ -18,7 +18,7 @@ import {earthBody} from "./CelestialBodies"
 
 // Constants
 const MT_TO_J = 4.184e15;
-const GLOBAL_POP = 8_250_000_000;
+export const GLOBAL_POP = 8_250_000_000;
 const GLOBAL_AVERAGE_DENSITY = 50;
 const HALF_CIRCUMFERENCE_M = 20037508.34;
 

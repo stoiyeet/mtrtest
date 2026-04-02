@@ -6,7 +6,7 @@ import { OrbitControls, Html, Stars } from '@react-three/drei';
 import EarthImpact from './EarthImpact';
 import ImpactEffects from './ImpactEffects';
 import styles from './MeteorImpactPage.module.css';
-import {computeImpactEffects, estimateAsteroidDeaths } from '@/lib/serverPhysicsEngine';
+import {computeImpactEffects, estimateAsteroidDeaths, GLOBAL_POP } from '@/lib/serverPhysicsEngine';
 import { Mortality, Damage_Inputs, CelestialBody } from '@/lib/impactTypes';
 import {earthBody, moonBody} from '@/lib/CelestialBodies';
 
@@ -96,14 +96,17 @@ export default function MeteorImpactPageOptimized({ meteor }: { meteor: Meteor }
       abortControllerRef.current.abort();
     }
 
+    if (selectedBody.name !== "Earth") {
+      setMortality({ deathCount: 0, injuryCount: 0 });
+      setMortalityLoading(false);
+      return;
+    }
+
     const Crater_Results = damageData.Crater_Results
-    const Thermal_Effects = damageData.Thermal_Effects
-    const Seismic_Effects = damageData.Seismic_Results
-    const Strike_Overview = damageData.Strike_Overview
 
     // Early return for global catastrophes - no API call needed
     if (Crater_Results.Earth_Effect === "destroyed" || Crater_Results.Earth_Effect === "strongly_disturbed") {
-      setMortality({ deathCount: 8_250_000_000, injuryCount: 0 });
+      setMortality({ deathCount: GLOBAL_POP, injuryCount: 0 });
       setMortalityLoading(false);
       return;
     }
@@ -116,7 +119,7 @@ export default function MeteorImpactPageOptimized({ meteor }: { meteor: Meteor }
 
     try {
       const result = await estimateAsteroidDeaths(
-        damage,
+        damageData,
         lat, 
         lon, 
         meteor.diameter,
@@ -134,7 +137,7 @@ export default function MeteorImpactPageOptimized({ meteor }: { meteor: Meteor }
         setMortalityLoading(false);
       }
     }
-  }, []);
+  }, [selectedBody, meteor.diameter, estimateAsteroidDeaths]);
 
   useEffect(() => {
     if (!selectedBody.hasWater) {
