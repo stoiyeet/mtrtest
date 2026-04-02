@@ -322,7 +322,7 @@ function Scene({
         }}
         touches={{
           ONE: THREE.TOUCH.ROTATE,
-          TWO: THREE.TOUCH.DOLLY_PAN,
+          TWO: THREE.TOUCH.DOLLY_ROTATE
         }}
       />
 
