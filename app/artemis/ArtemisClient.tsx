@@ -75,9 +75,16 @@ export default function ArtemisClient() {
   };
 
   const handleCloseInfo = () => {
+    // Keep mobile crew menu open if closing a crew profile (not mission brief)
+    const shouldReopenCrewMenu = !showMissionBrief;
+
     setIsInfoVisible(false);
     setSelectedCrew(null);
     setShowMissionBrief(false);
+
+    if (shouldReopenCrewMenu) {
+      setShowMobileCrewMenu(true);
+    }
   };
 
   const handleStartAnimation = () => {
