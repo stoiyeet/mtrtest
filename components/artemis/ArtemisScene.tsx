@@ -6,7 +6,7 @@ import { OrbitControls, Stars, useGLTF, PerspectiveCamera } from '@react-three/d
 import * as THREE from 'three';
 import {earthBody, moonBody} from "@/lib/CelestialBodies"
 import SpaceBody from "@/components/SpaceBody";
-import { createFlightCurve, getFlightState } from '@/lib/artemisFlightPath';
+import { createFlightCurve, getFlightState, loadPathCoordinates } from '@/lib/artemisFlightPath';
 
 
 interface ArtemisSceneProps {
@@ -199,12 +199,37 @@ function Scene({
   animationProgress,
   isAnimating
 }: ArtemisSceneProps) {
+  const [pathLoaded, setPathLoaded] = useState(false);
+
+  // Load path coordinates on mount
+  useEffect(() => {
+    loadPathCoordinates().then(() => {
+      setPathLoaded(true);
+    });
+  }, []);
+
   const handleSpacecraftHover = (hovered: boolean) => {
     onHoverChange(hovered ? 'Artemis Spacecraft' : null);
   };
 
-  // Create flight curve once
-  const flightCurve = useMemo(() => createFlightCurve(), []);
+  // Create flight curve once path is loaded
+  const flightCurve = useMemo(() => {
+    if (!pathLoaded) return null;
+    return createFlightCurve();
+  }, [pathLoaded]);
+
+  // Don't render until path is loaded
+  if (!pathLoaded || !flightCurve) {
+    return (
+      <>
+        <PerspectiveCamera makeDefault position={[8, 4, 8]} fov={50} />
+        <ambientLight intensity={0.5} />
+        {/* Show loading state with celestial bodies only */}
+        <SpaceBody celestialBody={moonBody} position={[5,0,0]} />
+        <SpaceBody celestialBody={earthBody} position={[-3, 0, 0]}/>
+      </>
+    );
+  }
 
   return (
     <>
