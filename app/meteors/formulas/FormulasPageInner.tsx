@@ -200,7 +200,7 @@ export default function FormulasPageInner() {
                 {
                     title: "Population Via tif extraction",
                     equation: "",
-                    image: "/images/populationDensity.png",
+                    image: "https://glb.asteroidstrike.earth/images/populationDensity.png",
                     description: "Population density is derived directly from a georeferenced tif file taken from the NASA Socioeconomic Data and Applications Center (SEDAC). The impact latitude and longitude define the center point, and eight additional points are sampled at equal offsets around the chosen population radius. Values from these nine points are averaged to obtain a more robust local density estimate. This approach captures variations in the surrounding area and reduces sensitivity to anomalies at a single coordinate.",
                     priority: "PRIMARY"
                 },

@@ -126,7 +126,7 @@ export default function ArtemisInfo({ crew, showMission, onClose, isVisible }: A
 
       {/* Artemis branding footer */}
       <div className={styles.footer}>
-        <img src="/images/ArtemisLogo.jpg" alt="Artemis Logo" className={styles.footerLogo} />
+        <img src="https://glb.asteroidstrike.earth/images/ArtemisLogo.jpg" alt="Artemis Logo" className={styles.footerLogo} />
         <span className={styles.footerText}>Gateway to Mars</span>
       </div>
     </div>

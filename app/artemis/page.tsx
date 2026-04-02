@@ -7,7 +7,7 @@ export const metadata = {
   openGraph: {
     title: 'Artemis Program',
     description: 'Interactive exploration of NASA\'s Artemis lunar missions',
-    images: ['/images/ArtemisLogo2.png'],
+    images: ['https://glb.asteroidstrike.earth/images/ArtemisLogo2.png'],
   },
 };
 

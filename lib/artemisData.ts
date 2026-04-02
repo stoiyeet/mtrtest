@@ -35,7 +35,7 @@ export const artemisData: ArtemisInfo = {
       name: "Reid Wiseman",
       role: "Commander",
       agency: "NASA",
-      image: "/images/ReidWiseman.jpg",
+      image: "https://glb.asteroidstrike.earth/images/ReidWiseman.jpg",
       headline: "The oldest human to ever leave Earth orbit",
       bio: [
         "Navy Captain and test pilot with 165 days in orbit. Master's in Systems Engineering from Johns Hopkins.",
@@ -52,7 +52,7 @@ export const artemisData: ArtemisInfo = {
       name: "Victor Glover",
       role: "Pilot",
       agency: "NASA",
-      image: "/images/VictorGlover.jpg",
+      image: "https://glb.asteroidstrike.earth/images/VictorGlover.jpg",
       callsign: "IKE",
       headline: "First person of color to pilot a spacecraft to the Moon",
       bio: [
@@ -70,7 +70,7 @@ export const artemisData: ArtemisInfo = {
       name: "Christina Koch",
       role: "Mission Specialist",
       agency: "NASA",
-      image: "/images/ChristinaKoch.jpg",
+      image: "https://glb.asteroidstrike.earth/images/ChristinaKoch.jpg",
       headline: "World record holder for longest single spaceflight by a woman",
       bio: [
         "328-day spaceflight record holder. Elite engineer with M.S. in Electrical Engineering.",
@@ -87,7 +87,7 @@ export const artemisData: ArtemisInfo = {
       name: "Jeremy Hansen",
       role: "Mission Specialist",
       agency: "CSA",
-      image: "/images/JeremyHansen.jpg",
+      image: "https://glb.asteroidstrike.earth/images/JeremyHansen.jpg",
       headline: "First non-American to leave Earth orbit for the Moon",
       bio: [
         "Colonel in the Royal Canadian Air Force and CF-18 fighter pilot. Honours B.S. in Space Science, M.S. in Physics.",

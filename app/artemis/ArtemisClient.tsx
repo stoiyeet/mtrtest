@@ -139,7 +139,7 @@ export default function ArtemisClient() {
 
       {/* Easter egg - Artemis logo watermark */}
       <div className={styles.artemisWatermark}>
-        <img src="/images/ArtemisLogo2.png" alt="Artemis" />
+        <img src="https://glb.asteroidstrike.earth/images/ArtemisLogo2.png" alt="Artemis" />
       </div>
 
       {/* Program overview - top left */}

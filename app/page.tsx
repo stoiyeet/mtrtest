@@ -83,7 +83,7 @@ export default function Home(): React.ReactElement {
       >
         <div className="relative w-16 h-16 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300 overflow-hidden group-hover:scale-110">
           <img
-            src="/images/ArtemisLogo2.png"
+            src="https://glb.asteroidstrike.earth/images/ArtemisLogo2.png"
             alt="Artemis"
             className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity"
           />

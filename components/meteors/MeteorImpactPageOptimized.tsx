@@ -467,7 +467,7 @@ export default function MeteorImpactPageOptimized({ meteor }: { meteor: Meteor }
         title="Explore NASA's Artemis Program"
       >
         <img
-          src="/images/ArtemisLogo2.png"
+          src="https://glb.asteroidstrike.earth/images/ArtemisLogo2.png"
           alt="Artemis"
           className={styles.artemisLogo}
         />
