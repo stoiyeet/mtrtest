@@ -60,14 +60,6 @@ export default function ArtemisClient() {
   }, [t]);
 
   const handleSpacecraftClick = () => {
-    // If animation hasn't started, start it
-    if (!animationStarted) {
-      setAnimationStarted(true);
-      setPlaying(true);
-      return;
-    }
-
-    // Otherwise show mission brief
     setShowMissionBrief(true);
     setSelectedCrew(null);
     setIsInfoVisible(true);
@@ -108,13 +100,6 @@ export default function ArtemisClient() {
           />
         </Suspense>
       </div>
-
-      {/* Hover tooltip / Start prompt */}
-      {!animationStarted && hoveredObject && !isInfoVisible && (
-        <div className={styles.hoverTooltip}>
-          <p>Click to start Artemis I flight path</p>
-        </div>
-      )}
 
       {hoveredObject && animationStarted && !isInfoVisible && (
         <div className={styles.hoverTooltip}>
@@ -228,7 +213,7 @@ export default function ArtemisClient() {
         <div className={styles.startPrompt}>
           <button onClick={handleStartAnimation} className={styles.startButton}>
             <span className={styles.startIcon}>🚀</span>
-            <span>Start Artemis I Flight</span>
+            <span>Start Artemis II Flight</span>
           </button>
           <p className={styles.startHint}>Or click the spacecraft</p>
         </div>
