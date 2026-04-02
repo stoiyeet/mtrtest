@@ -1,188 +1,130 @@
 /**
- * Artemis Program Information
- * Structured data for dynamic display without cluttering the main interface
+ * Artemis II Mission Briefing
+ * High-impact crew profiles and mission data
  */
 
-export interface ArtemisMission {
+export interface CrewMember {
   name: string;
-  date: string;
-  crewed: boolean;
-  crew?: string[];
-  objectives: string[];
-  hardware: string[];
-  facts: string[];
+  role: string;
+  agency: string;
+  image: string;
+  callsign?: string;
+  headline: string;
+  bio: string[];
+  achievements: string[];
+}
+
+export interface MissionBrief {
+  title: string;
+  tagline: string;
+  launchDate: string;
+  duration: string;
+  highlights: string[];
+  significance: string;
+  nextSteps: string[];
 }
 
 export interface ArtemisInfo {
-  missions: ArtemisMission[];
-  hardware: Record<string, string>;
-  crew: Record<string, string>;
-  timeline: {
-    year: number;
-    milestones: string[];
-  }[];
+  crew: CrewMember[];
+  mission: MissionBrief;
 }
 
 export const artemisData: ArtemisInfo = {
-  missions: [
+  crew: [
     {
-      name: "Artemis I",
-      date: "Nov 16, 2022",
-      crewed: false,
-      objectives: [
-        "Test SLS and Orion systems",
-        "Fly 1.4 million miles beyond the Moon",
-        "Validate heat shields and deep-space systems"
+      name: "Reid Wiseman",
+      role: "Commander",
+      agency: "NASA",
+      image: "/images/ReidWiseman.jpg",
+      headline: "The oldest human to ever leave Earth orbit",
+      bio: [
+        "Navy Captain and test pilot with 165 days in orbit. Master's in Systems Engineering from Johns Hopkins.",
+        "At age 50, Wiseman shattered a 50-year-old record as the oldest human to venture beyond Low Earth Orbit.",
+        "Former Chief of the Astronaut Office, who managed the entire U.S. astronaut corps before commanding the first lunar mission of the 21st century."
       ],
-      hardware: ["Space Launch System (SLS)", "Orion spacecraft"],
-      facts: [
-        "First integrated SLS/Orion flight test",
-        "25-day uncrewed lunar flight",
-        "Tested all critical systems for crewed missions"
+      achievements: [
+        "165 days on ISS",
+        "Former Chief of Astronaut Office",
+        "Oldest person in deep space (age 50)"
       ]
     },
     {
-      name: "Artemis II",
-      date: "Apr 1, 2026",
-      crewed: true,
-      crew: [
-        "Reid Wiseman (Commander) - NASA",
-        "Victor Glover (Pilot) - NASA",
-        "Christina Koch (Mission Specialist) - NASA",
-        "Jeremy Hansen (Mission Specialist) - CSA"
+      name: "Victor Glover",
+      role: "Pilot",
+      agency: "NASA",
+      image: "/images/VictorGlover.jpg",
+      callsign: "IKE",
+      headline: "First person of color to pilot a spacecraft to the Moon",
+      bio: [
+        "Apex aviator with 3,000+ flight hours and 400 carrier landings. Holds three master's degrees including Flight Test Engineering and Systems Engineering.",
+        "Former NCAA Division I wrestler and football star for the Cal Poly Mustangs. Call sign: \"IKE\" (short for \"I Know Everything\").",
+        "Piloted the first operational SpaceX Crew Dragon mission. Now the first person of color to pilot a spacecraft to the Moon."
       ],
-      objectives: [
-        "First crewed flight of SLS and Orion",
-        "Validate life support and communications with humans aboard",
-        "Lunar flyby and far-side science observations",
-        "10-day mission 300,000+ miles around the Moon"
-      ],
-      hardware: ["Space Launch System (SLS)", "Orion spacecraft"],
-      facts: [
-        "Jeremy Hansen becomes the first Canadian to venture beyond low Earth orbit",
-        "Christina Koch holds the record for longest single spaceflight by a woman (328 days)",
-        "All four are veteran explorers with extensive space experience"
+      achievements: [
+        "3,000+ flight hours",
+        "3 master's degrees",
+        "First Black pilot to the Moon"
       ]
     },
     {
-      name: "Artemis III",
-      date: "2027",
-      crewed: true,
-      objectives: [
-        "Rendezvous and dock with commercial lunar lander in orbit",
-        "Test lunar landing system docking procedures",
-        "Preparation for Artemis IV crewed landing"
+      name: "Christina Koch",
+      role: "Mission Specialist",
+      agency: "NASA",
+      image: "/images/ChristinaKoch.jpg",
+      headline: "World record holder for longest single spaceflight by a woman",
+      bio: [
+        "328-day spaceflight record holder. Elite engineer with M.S. in Electrical Engineering.",
+        "Antarctic \"winter-over\" veteran who served as the Firefighting and Search and Rescue lead at South Pole Station in -70°C conditions.",
+        "Led the first three all-female spacewalks in history. An elite ice climber and surfer who spent a full year at the South Pole, including a \"winter - over\" as a search and rescue lead. Arguably the most battle-tested isolation specialist in the astronaut corps."
       ],
-      hardware: ["SLS", "Orion", "Starship HLS (SpaceX)"],
-      facts: [
-        "Added in 2026 to increase flight cadence and reduce risk",
-        "Orbits with lander rather than landing",
-        "Critical demonstration mission for future crewed landings"
+      achievements: [
+        "328-day spaceflight record",
+        "First all-female spacewalk leader",
+        "Antarctic extreme-environment specialist"
       ]
     },
     {
-      name: "Artemis IV",
-      date: "Early 2028",
-      crewed: true,
-      objectives: [
-        "First crewed lunar landing of Artemis",
-        "Land at the Moon's South Pole",
-        "~1 week surface stay with 2 astronauts",
-        "Conduct science experiments and collect samples"
+      name: "Jeremy Hansen",
+      role: "Mission Specialist",
+      agency: "CSA",
+      image: "/images/JeremyHansen.jpg",
+      headline: "First non-American to leave Earth orbit for the Moon",
+      bio: [
+        "Colonel in the Royal Canadian Air Force and CF-18 fighter pilot. Honours B.S. in Space Science, M.S. in Physics.",
+        "First Canadian ever selected to lead a NASA astronaut class as instructor, proving his mastery of orbital mechanics.",
+        "Lived underground for six days in Sardinian cave system. Served as aquanaut on NEEMO 19 mission. Now the first non-American to leave Earth's orbit for the Moon."
       ],
-      hardware: ["SLS", "Orion", "Starship HLS (SpaceX)", "Lunar equipment"],
-      facts: [
-        "Will land the first woman on the Moon",
-        "Will land the first person of color on the Moon",
-        "South Pole rich in water ice and ancient rocks"
-      ]
-    },
-    {
-      name: "Artemis V",
-      date: "Late 2028",
-      crewed: true,
-      objectives: [
-        "Sustained lunar presence and Gateway expansion",
-        "Crewed landing at South Pole (2 astronauts)",
-        "Deploy Gateway modules and infrastructure",
-        "Test reusable lander systems"
-      ],
-      hardware: ["SLS", "Orion", "Blue Moon HLS (Blue Origin)", "Gateway station"],
-      facts: [
-        "Uses Blue Origin's Blue Moon lander",
-        "Week-long South Pole visit",
-        "Demonstrates habitat and refueling concepts for multiple landings"
+      achievements: [
+        "First Canadian beyond LEO",
+        "Led NASA astronaut class",
+        "NEEMO 19 aquanaut"
       ]
     }
   ],
-  hardware: {
-    SLS: "Space Launch System - Super-heavy lift rocket capable of sending Orion and crew to the Moon in a single launch",
-    Orion: "Crew capsule with European-built Service Module that sustains astronauts in deep space",
-    Gateway: "Small space station in lunar orbit built with international partners (ESA, JAXA, CSA)",
-    Starship: "SpaceX-developed lunar lander for Artemis III and IV missions",
-    "Blue Moon": "Blue Origin's lunar lander for Artemis V and beyond",
-    Canadarm3: "Robotic arm provided by Canada for Gateway maintenance"
-  },
-  crew: {
-    "Reid Wiseman": "Commander - Former Navy test pilot, 165 days on ISS in 2014",
-    "Victor Glover": "Pilot - Piloted SpaceX Crew-1 to ISS, 168 days in orbit",
-    "Christina Koch": "Mission Specialist - Holds record for longest female spaceflight (328 days), performs all-female spacewalks",
-    "Jeremy Hansen": "Mission Specialist - Former fighter pilot, first Canadian beyond low Earth orbit"
-  },
-  timeline: [
-    {
-      year: 2022,
-      milestones: [
-        "Artemis I launches Nov 16",
-        "Uncrewed flyby of Moon completed"
-      ]
-    },
-    {
-      year: 2026,
-      milestones: [
-        "Artemis II launches Apr 1 with 4-person crew",
-        "First humans aboard SLS and Orion",
-        "10-day lunar flyby mission"
-      ]
-    },
-    {
-      year: 2027,
-      milestones: [
-        "Artemis III orbital demonstration",
-        "Commercial lander docking test in lunar orbit"
-      ]
-    },
-    {
-      year: 2028,
-      milestones: [
-        "Artemis IV - First crewed lunar landing",
-        "Artemis V - Sustained presence at South Pole",
-        "Annual mission cadence begins"
-      ]
-    }
-  ]
+  mission: {
+    title: "ARTEMIS II",
+    tagline: "First crewed lunar flyby in over 50 years",
+    launchDate: "April 1, 2026",
+    duration: "10 days",
+    highlights: [
+      "Four astronauts loop around the Moon aboard NASA's most powerful rocket",
+      "First humans beyond Earth orbit since Apollo 17 (1972)",
+      "Validates life support, communications, and deep-space navigation systems",
+      "Lunar far-side observations and scientific data collection",
+      "300,000+ mile journey pushing the boundaries of human exploration"
+    ],
+    significance: "Artemis II is the critical proving ground for returning humans to the lunar surface. This mission demonstrates that we can safely send astronauts to deep space and bring them home—the essential first step toward establishing a sustained presence on the Moon and preparing humanity for Mars.",
+    nextSteps: [
+      "Artemis III (2027): Orbital demonstration with commercial lunar lander",
+      "Artemis IV (2028): First crewed lunar landing—South Pole touchdown",
+      "Artemis V+ (2028+): Sustained lunar operations, Gateway station deployment, and Mars preparation"
+    ]
+  }
 };
 
 /**
- * Get a concise summary of the Artemis program
+ * Get crew member by name
  */
-export function getArtemisSummary(): string {
-  return `NASA's Artemis program returns astronauts to the Moon as a stepping-stone to Mars. 
-Artemis II (Apr 2026) launches four astronauts on a 10-day crewed loop around the Moon. 
-Future missions will land the first woman and person of color on the Moon's South Pole.
-The program builds a sustained lunar presence through international partnerships and commercial services.`;
-}
-
-/**
- * Get details about a specific mission
- */
-export function getMissionDetails(missionName: string): ArtemisMission | undefined {
-  return artemisData.missions.find(m => m.name.toLowerCase() === missionName.toLowerCase());
-}
-
-/**
- * Get current Artemis status (as of April 2026)
- */
-export function getArtemisStatus(): string {
-  return "Artemis II successfully launched on April 1, 2026. The first crewed flight on NASA's new Moon rocket is underway. The next milestone is Artemis III in 2027, with the first crewed lunar landing (Artemis IV) targeted for early 2028.";
+export function getCrewMember(name: string): CrewMember | undefined {
+  return artemisData.crew.find(c => c.name.toLowerCase().includes(name.toLowerCase()));
 }

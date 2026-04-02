@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import dynamic from 'next/dynamic';
-import { artemisData, type ArtemisMission } from '@/lib/artemisData';
+import { artemisData, type CrewMember } from '@/lib/artemisData';
 import ArtemisInfo from '@/components/artemis/ArtemisInfo';
 import styles from './ArtemisPage.module.css';
 import { SPEED_CONFIG } from '@/lib/artemisFlightPath';
@@ -18,7 +18,8 @@ const ArtemisScene = dynamic(() => import('@/components/artemis/ArtemisScene'), 
 });
 
 export default function ArtemisClient() {
-  const [selectedMission, setSelectedMission] = useState<ArtemisMission | null>(null);
+  const [selectedCrew, setSelectedCrew] = useState<CrewMember | null>(null);
+  const [showMissionBrief, setShowMissionBrief] = useState(false);
   const [isInfoVisible, setIsInfoVisible] = useState(false);
   const [hoveredObject, setHoveredObject] = useState<string | null>(null);
 
@@ -66,20 +67,22 @@ export default function ArtemisClient() {
       return;
     }
 
-    // Otherwise show mission info
-    const artemisII = artemisData.missions.find(m => m.name === 'Artemis II');
-    setSelectedMission(artemisII || artemisData.missions[1]);
+    // Otherwise show mission brief
+    setShowMissionBrief(true);
+    setSelectedCrew(null);
     setIsInfoVisible(true);
   };
 
-  const handleMissionSelect = (mission: ArtemisMission) => {
-    setSelectedMission(mission);
+  const handleCrewSelect = (crew: CrewMember) => {
+    setSelectedCrew(crew);
+    setShowMissionBrief(false);
     setIsInfoVisible(true);
   };
 
   const handleCloseInfo = () => {
     setIsInfoVisible(false);
-    setSelectedMission(null);
+    setSelectedCrew(null);
+    setShowMissionBrief(false);
   };
 
   const handleStartAnimation = () => {
@@ -115,34 +118,35 @@ export default function ArtemisClient() {
 
       {hoveredObject && animationStarted && !isInfoVisible && (
         <div className={styles.hoverTooltip}>
-          <p>Click to learn more about {hoveredObject}</p>
+          <p>Click for mission briefing</p>
         </div>
       )}
 
-      {/* Mission selector overlay - bottom left */}
+      {/* Crew selector overlay - bottom left */}
       <div className={styles.missionSelector}>
-        <h3>Artemis Missions</h3>
+        <h3>ARTEMIS II CREW</h3>
         <div className={styles.missionList}>
-          {artemisData.missions.map((mission) => (
+          {artemisData.crew.map((crew) => (
             <button
-              key={mission.name}
-              onClick={() => handleMissionSelect(mission)}
+              key={crew.name}
+              onClick={() => handleCrewSelect(crew)}
               className={`${styles.missionButton} ${
-                selectedMission?.name === mission.name ? styles.active : ''
+                selectedCrew?.name === crew.name ? styles.active : ''
               }`}
             >
-              <span className={styles.missionName}>{mission.name}</span>
-              <span className={styles.missionDate}>{mission.date}</span>
-              {mission.crewed && <span className={styles.crewedBadge}>Crewed</span>}
+              <span className={styles.missionName}>{crew.name}</span>
+              <span className={styles.missionDate}>{crew.role}</span>
+              <span className={styles.crewedBadge}>{crew.agency}</span>
             </button>
           ))}
         </div>
       </div>
 
       {/* Info Panel - slides in from right */}
-      {isInfoVisible && selectedMission && (
+      {isInfoVisible && (
         <ArtemisInfo
-          mission={selectedMission}
+          crew={selectedCrew}
+          showMission={showMissionBrief}
           onClose={handleCloseInfo}
           isVisible={isInfoVisible}
         />
@@ -155,11 +159,11 @@ export default function ArtemisClient() {
 
       {/* Program overview - top left */}
       <div className={styles.programOverview}>
-        <h1>Artemis Program</h1>
-        <p>Returning humans to the Moon</p>
+        <h1>ARTEMIS II</h1>
+        <p>First crewed lunar flyby in 50+ years</p>
         <div className={styles.tagline}>
           <span>🌙</span>
-          <span>Preparing for Mars</span>
+          <span>Gateway to Mars</span>
         </div>
       </div>
 
