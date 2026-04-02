@@ -203,7 +203,7 @@ export default function ImpactEffects({ effects, mortality, impactLat, impactLon
             <div className={styles.sectionInfo}>
               Thermal effects are caused by the intense heat generated during impact or airburst.
             </div>
-            {Thermal_Effects.Fireball_Radius && (
+            {Thermal_Effects.Fireball_Radius && celestialBody.hasAtmosphere &&(
               <div className={styles.dataRow}>
                 <span className={styles.label}>Fireball Radius</span>
                 <span className={styles.value}>{formatDistance(Thermal_Effects.Fireball_Radius)}</span>
@@ -257,7 +257,7 @@ export default function ImpactEffects({ effects, mortality, impactLat, impactLon
               The wave blast creates a sudden pressure increase that can damage structures and cause injuries.
             </div>
             {!celestialBody.hasAtmosphere ? (
-              <div className={styles.sectionInfo}>
+              <div style={{ color: "#d34646ff" }}>
                 No atmosphere, no traditional blast wave. On the Moon, impacts produce seismic shaking and ejecta, but not an air-pressure wave—also, there is no sound propagation in vacuum.
               </div>
             ) : (
@@ -439,12 +439,14 @@ export default function ImpactEffects({ effects, mortality, impactLat, impactLon
               )
               }
             </div>
-            <div className={styles.sectionInfo}>
-              {(
-                <span style={{ color: "#d34646ff" }}>This is a heuristic based approximation and can&apos;t consider effects like ejecta, airborne debris, or supply chain crash</span>
-              )
-              }
-            </div>
+            {celestialBody.name.toLowerCase().includes('earth') && (
+              <div className={styles.sectionInfo}>
+                {(
+                  <span style={{ color: "#d34646ff" }}>This is a heuristic based approximation and can&apos;t consider effects like ejecta, airborne debris, or supply chain crash</span>
+                )
+                }
+              </div>
+            )}
             <Link href="/meteors/formulas?category=mortality" className={styles.scienceButton}>
               🧪 Check the Science
             </Link>
@@ -457,7 +459,7 @@ export default function ImpactEffects({ effects, mortality, impactLat, impactLon
               Tsunami Effects
             </div>
             {celestialBody.name.toLowerCase().includes('moon') && (
-              <div className={styles.sectionInfo}>
+              <div style={{ color: "#d34646ff" }}>
                 No ocean present on this body. Moon tsunami is not possible as of now.
               </div>
             )}
