@@ -302,12 +302,21 @@ function Scene({
     <>
       <PerspectiveCamera makeDefault position={[8, 4, 8]} fov={50} />
       <OrbitControls
-        enablePan={false}
+        enablePan={true}
         enableZoom={true}
         minDistance={5}
         maxDistance={20}
         maxPolarAngle={Math.PI / 1.8}
         minPolarAngle={Math.PI / 6}
+        mouseButtons={{
+          LEFT: THREE.MOUSE.ROTATE,
+          MIDDLE: THREE.MOUSE.DOLLY,
+          RIGHT: THREE.MOUSE.PAN,
+        }}
+        touches={{
+          ONE: THREE.TOUCH.ROTATE,
+          TWO: THREE.TOUCH.PAN,
+        }}
       />
 
       <Lighting />
