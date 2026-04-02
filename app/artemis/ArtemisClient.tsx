@@ -85,7 +85,6 @@ export default function ArtemisClient() {
   const handleStartAnimation = () => {
     setAnimationStarted(true);
     setPlaying(true);
-    setT(0);
   };
 
   const handleResetAnimation = () => {
@@ -209,12 +208,12 @@ export default function ArtemisClient() {
             </button>
 
             <div className={styles.timelineStatus}>
-              {t < 0.10 && 'Loop 1'}
-              {t >= 0.10 && t < 0.25 && 'Loop 2'}
-              {t >= 0.25 && t < 0.45 && 'Loop 3'}
-              {t >= 0.45 && t < 0.70 && 'Trans-Lunar'}
-              {t >= 0.70 && t < 0.85 && 'Moon Flyby'}
-              {t >= 0.85 && 'Return'}
+              {t < 0.13 && 'Loop 1'}
+              {t >= 0.13 && t < 0.3 && 'Loop 2'}
+              {t >= 0.3 && t < 0.5 && 'Loop 3'}
+              {t >= 0.5 && t < 0.6 && 'Trans-Lunar'}
+              {t >= 0.60 && t < 0.75 && 'Moon Flyby'}
+              {t >= 0.75 && 'Return'}
             </div>
           </div>
         </div>
