@@ -26,13 +26,15 @@ function ArtemisSpacecraft({
   onHover,
   animationProgress,
   isAnimating,
-  flightCurve
+  flightCurve,
+  onPositionUpdate
 }: {
   onClick: () => void;
   onHover: (hovered: boolean) => void;
   animationProgress: number;
   isAnimating: boolean;
   flightCurve: THREE.CatmullRomCurve3;
+  onPositionUpdate: (position: THREE.Vector3) => void;
 }) {
   const { scene } = useGLTF('https://glb.asteroidstrike.earth/artemis1.glb');
   const spacecraftRef = useRef<THREE.Group>(null);
@@ -50,6 +52,9 @@ function ArtemisSpacecraft({
 
         // Orient along path tangent (Y-axis points along tangent)
         spacecraftRef.current.quaternion.copy(flightState.quaternion);
+
+        // Report position to parent for trail tracking
+        onPositionUpdate(spacecraftRef.current.position.clone());
       } else {
         // Static position before animation starts
         spacecraftRef.current.position.set(4, 3, 2);
@@ -103,13 +108,16 @@ function ArtemisSpacecraft({
 function FlightPath({
   flightCurve,
   animationProgress,
-  isAnimating
+  isAnimating,
+  spacecraftPosition
 }: {
   flightCurve: THREE.CatmullRomCurve3;
   animationProgress: number;
   isAnimating: boolean;
+  spacecraftPosition: THREE.Vector3 | null;
 }) {
-  const trailLineRef = useRef<THREE.Line>(null);
+  const trailTubeRef = useRef<THREE.Mesh>(null);
+  const positionHistory = useRef<THREE.Vector3[]>([]);
 
   // Static faint gray path material
   const staticMaterial = useMemo(() => {
@@ -121,47 +129,43 @@ function FlightPath({
     });
   }, []);
 
-  // Dynamic red trail material
-  const trailMaterial = useMemo(() => {
-    return new THREE.LineBasicMaterial({
-      color: new THREE.Color(0xff3333),
-      linewidth: 3,
-      transparent: true,
-      opacity: 0.9,
-    });
-  }, []);
-
   // Full path points for static display
   const staticPathPoints = useMemo(() => {
     return flightCurve.getPoints(300);
   }, [flightCurve]);
 
-  // Initialize trail line
+  // Reset position history when animation starts
   useEffect(() => {
-    if (!trailLineRef.current) {
-      const geometry = new THREE.BufferGeometry();
-      trailLineRef.current = new THREE.Line(geometry, trailMaterial);
+    if (isAnimating) {
+      positionHistory.current = [];
     }
-    return () => {
-      // Cleanup
-      if (trailLineRef.current) {
-        trailLineRef.current.geometry.dispose();
-      }
-    };
-  }, [trailMaterial]);
+  }, [isAnimating]);
 
+  // Update trail using actual spacecraft positions
   useFrame(() => {
-    if (trailLineRef.current && isAnimating) {
-      const totalPoints = 300;
-      const currentPoint = Math.floor(totalPoints * animationProgress);
-      const trailLength = SPEED_CONFIG.trailLength;
+    if (isAnimating && spacecraftPosition) {
+      // Add current position to history
+      positionHistory.current.push(spacecraftPosition.clone());
 
-      // Get trail points (from currentPoint - trailLength to currentPoint)
-      const startPoint = Math.max(0, currentPoint - trailLength);
-      const trailPoints = flightCurve.getPoints(totalPoints).slice(startPoint, currentPoint + 1);
+      // Keep only the last N positions based on trail length
+      const maxLength = Math.max(SPEED_CONFIG.trailLength, 2);
+      if (positionHistory.current.length > maxLength) {
+        positionHistory.current.shift();
+      }
 
-      if (trailPoints.length > 1) {
-        (trailLineRef.current.geometry as THREE.BufferGeometry).setFromPoints(trailPoints);
+      // Update trail tube if we have enough points
+      if (positionHistory.current.length > 1 && trailTubeRef.current) {
+        const trailCurve = new THREE.CatmullRomCurve3(positionHistory.current);
+        const tubeGeometry = new THREE.TubeGeometry(
+          trailCurve,
+          positionHistory.current.length * 3,
+          0.04,
+          8,
+          false
+        );
+
+        trailTubeRef.current.geometry.dispose();
+        trailTubeRef.current.geometry = tubeGeometry;
       }
     }
   });
@@ -181,9 +185,17 @@ function FlightPath({
         </line>
       )}
 
-      {/* Red trailing line behind spacecraft */}
-      {isAnimating && trailLineRef.current && (
-        <primitive object={trailLineRef.current} />
+      {/* Simple red trail tube */}
+      {isAnimating && (
+        <mesh ref={trailTubeRef}>
+          <tubeGeometry args={[flightCurve, 2, 0.04, 8, false]} />
+          <meshBasicMaterial
+            color={0xff3333}
+            transparent
+            opacity={0.85}
+            side={THREE.DoubleSide}
+          />
+        </mesh>
       )}
     </>
   );
@@ -223,6 +235,7 @@ function Scene({
   isAnimating
 }: ArtemisSceneProps) {
   const [pathLoaded, setPathLoaded] = useState(false);
+  const [spacecraftPosition, setSpacecraftPosition] = useState<THREE.Vector3 | null>(null);
 
   // Load path coordinates on mount
   useEffect(() => {
@@ -233,6 +246,10 @@ function Scene({
 
   const handleSpacecraftHover = (hovered: boolean) => {
     onHoverChange(hovered ? 'Artemis Spacecraft' : null);
+  };
+
+  const handlePositionUpdate = (position: THREE.Vector3) => {
+    setSpacecraftPosition(position);
   };
 
   // Create flight curve once path is loaded
@@ -288,6 +305,7 @@ function Scene({
         flightCurve={flightCurve}
         animationProgress={animationProgress}
         isAnimating={isAnimating}
+        spacecraftPosition={spacecraftPosition}
       />
 
       {/* Artemis spacecraft */}
@@ -297,6 +315,7 @@ function Scene({
         animationProgress={animationProgress}
         isAnimating={isAnimating}
         flightCurve={flightCurve}
+        onPositionUpdate={handlePositionUpdate}
       />
     </>
   );

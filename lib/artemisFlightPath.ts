@@ -40,7 +40,7 @@ export const SPEED_CONFIG = {
     { startT: 0.65, endT: 0.75, multiplier: 1.8 },
   ],
   // Trail configuration
-  trailLength: 5,  // Number of points in the red trail behind spacecraft
+  trailLength: 10,  // Number of points in the red trail behind spacecraft
 };
 
 // Placeholder coordinates - will be set at runtime
