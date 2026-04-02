@@ -22,6 +22,7 @@ export default function ArtemisClient() {
   const [showMissionBrief, setShowMissionBrief] = useState(false);
   const [isInfoVisible, setIsInfoVisible] = useState(false);
   const [hoveredObject, setHoveredObject] = useState<string | null>(null);
+  const [showMobileCrewMenu, setShowMobileCrewMenu] = useState(false);
 
   // Timeline state
   const [t, setT] = useState(0);
@@ -69,6 +70,7 @@ export default function ArtemisClient() {
     setSelectedCrew(crew);
     setShowMissionBrief(false);
     setIsInfoVisible(true);
+    setShowMobileCrewMenu(false);
   };
 
   const handleCloseInfo = () => {
@@ -216,6 +218,54 @@ export default function ArtemisClient() {
             <span>Start Artemis II Flight</span>
           </button>
           <p className={styles.startHint}>Or click the spacecraft</p>
+        </div>
+      )}
+
+      {/* Mobile crew menu button */}
+      <button
+        className={styles.mobileCrewButton}
+        onClick={() => setShowMobileCrewMenu(true)}
+        aria-label="Open crew menu"
+      >
+        <span className={styles.menuIcon}>👥</span>
+        <span className={styles.menuText}>CREW</span>
+      </button>
+
+      {/* Mobile crew menu overlay */}
+      {showMobileCrewMenu && (
+        <div className={styles.mobileCrewOverlay}>
+          <div className={styles.mobileCrewPanel}>
+            <div className={styles.mobileCrewHeader}>
+              <h3>ARTEMIS II CREW</h3>
+              <button
+                onClick={() => setShowMobileCrewMenu(false)}
+                className={styles.mobileCrewClose}
+                aria-label="Close menu"
+              >
+                ×
+              </button>
+            </div>
+            <div className={styles.mobileCrewList}>
+              {artemisData.crew.map((crew) => (
+                <button
+                  key={crew.name}
+                  onClick={() => handleCrewSelect(crew)}
+                  className={styles.mobileCrewItem}
+                >
+                  <img
+                    src={crew.image}
+                    alt={crew.name}
+                    className={styles.mobileCrewPhoto}
+                  />
+                  <div className={styles.mobileCrewInfo}>
+                    <span className={styles.mobileCrewName}>{crew.name}</span>
+                    <span className={styles.mobileCrewRole}>{crew.role}</span>
+                    <span className={styles.mobileCrewAgency}>{crew.agency}</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       )}
     </div>

@@ -27,12 +27,26 @@
 
 @media (max-width: 767px) {
   .infoPanel {
-    right: 10px;
-    left: 10px;
-    top: 70px;
-    bottom: 10px;
-    width: auto;
+    right: 0;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+    border: none;
     font-size: 12px;
+  }
+
+  .scrollContent {
+    padding: 16px;
+    padding-top: 60px;
+    padding-bottom: 70px;
+  }
+
+  .closeButton {
+    top: 12px;
+    right: 12px;
   }
 }
 
