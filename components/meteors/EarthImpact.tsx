@@ -265,11 +265,14 @@ export default function EarthImpact({
   }, []);
 
   // Handle muting/unmuting
+  // Handle muting/unmuting (including atmosphere consideration)
   useEffect(() => {
-    if (softAirTravelRef.current) softAirTravelRef.current.muted = muted;
-    if (softExplosionRef.current) softExplosionRef.current.muted = muted;
-    if (softFalloutRef.current) softFalloutRef.current.muted = muted;
-  }, [muted]);
+    const shouldMute = muted || !celestialBody.hasAtmosphere;
+
+    if (softAirTravelRef.current) softAirTravelRef.current.muted = shouldMute;
+    if (softExplosionRef.current) softExplosionRef.current.muted = shouldMute;
+    if (softFalloutRef.current) softFalloutRef.current.muted = shouldMute;
+  }, [muted, celestialBody.hasAtmosphere]);
 
   // Track timeline progression to detect playback vs seeking
   const prevTRef = useRef(0);
@@ -379,6 +382,22 @@ export default function EarthImpact({
     const tIncreasing = t > prevTRef.current; // t is increasing = playback, not user seeking
     const prevT = prevTRef.current;
 
+    // Guard: no audio for bodies without atmosphere (e.g., Moon)
+    if (!celestialBody.hasAtmosphere) {
+      // Ensure all audio is stopped
+      if (softAirTravelRef.current && !softAirTravelRef.current.paused) {
+        softAirTravelRef.current.pause();
+      }
+      if (softExplosionRef.current && !softExplosionRef.current.paused) {
+        softExplosionRef.current.pause();
+      }
+      if (softFalloutRef.current && !softFalloutRef.current.paused) {
+        softFalloutRef.current.pause();
+      }
+      prevTRef.current = t;
+      return;
+    }
+
     // Reset triggers when user seeks backward (t decreases while scene is playing)
     if (t < prevT) {
       soundTriggersRef.current = {
@@ -479,7 +498,7 @@ export default function EarthImpact({
     }
 
     prevTRef.current = t;
-  }, [t, impactTime, playing]);
+  }, [t, impactTime, playing, celestialBody.hasAtmosphere]);
 
   // Flight path
   const asteroidPos = useMemo(() => {

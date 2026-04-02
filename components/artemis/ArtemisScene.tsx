@@ -137,7 +137,7 @@ function Scene({ onSpacecraftClick, onHoverChange }: ArtemisSceneProps) {
       {/* Celestial bodies */}
       <SpaceBody celestialBody={moonBody} position={[0,0,0]} />
 
-      <SpaceBody celestialBody={earthBody} position={[-15, 2, -8]}/>
+      <SpaceBody celestialBody={earthBody} position={[-8, 0, 0]}/>
       {/* Artemis spacecraft */}
       <ArtemisSpacecraft
         onClick={onSpacecraftClick}
