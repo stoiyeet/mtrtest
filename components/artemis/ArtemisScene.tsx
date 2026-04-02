@@ -6,7 +6,7 @@ import { OrbitControls, Stars, useGLTF, PerspectiveCamera } from '@react-three/d
 import * as THREE from 'three';
 import {earthBody, moonBody} from "@/lib/CelestialBodies"
 import SpaceBody from "@/components/SpaceBody";
-import { createFlightCurve, getFlightState, loadPathCoordinates } from '@/lib/artemisFlightPath';
+import { createFlightCurve, getFlightState, loadPathCoordinates, SPEED_CONFIG } from '@/lib/artemisFlightPath';
 
 
 interface ArtemisSceneProps {
@@ -109,59 +109,82 @@ function FlightPath({
   animationProgress: number;
   isAnimating: boolean;
 }) {
-  const lineRef = useRef<THREE.Line>(null);
+  const trailLineRef = useRef<THREE.Line>(null);
 
-  // Create glowing material
-  const material = useMemo(() => {
+  // Static faint gray path material
+  const staticMaterial = useMemo(() => {
     return new THREE.LineBasicMaterial({
-      color: new THREE.Color(0x00ccff),
-      linewidth: 2,
+      color: new THREE.Color(0xaaaaaa),
+      linewidth: 1,
       transparent: true,
-      opacity: 0.8,
+      opacity: 0.15,
     });
   }, []);
 
-  // Initialize line object
+  // Dynamic red trail material
+  const trailMaterial = useMemo(() => {
+    return new THREE.LineBasicMaterial({
+      color: new THREE.Color(0xff3333),
+      linewidth: 3,
+      transparent: true,
+      opacity: 0.9,
+    });
+  }, []);
+
+  // Full path points for static display
+  const staticPathPoints = useMemo(() => {
+    return flightCurve.getPoints(300);
+  }, [flightCurve]);
+
+  // Initialize trail line
   useEffect(() => {
-    if (!lineRef.current) {
-      const geometry = new THREE.BufferGeometry().setFromPoints(
-        flightCurve.getPoints(200)
-      );
-      lineRef.current = new THREE.Line(geometry, material);
+    if (!trailLineRef.current) {
+      const geometry = new THREE.BufferGeometry();
+      trailLineRef.current = new THREE.Line(geometry, trailMaterial);
     }
-  }, [flightCurve, material]);
+    return () => {
+      // Cleanup
+      if (trailLineRef.current) {
+        trailLineRef.current.geometry.dispose();
+      }
+    };
+  }, [trailMaterial]);
 
   useFrame(() => {
-    if (lineRef.current && isAnimating) {
-      // Update line to show progressive drawing
-      const totalPoints = 200;
-      const visiblePoints = Math.floor(totalPoints * animationProgress);
+    if (trailLineRef.current && isAnimating) {
+      const totalPoints = 300;
+      const currentPoint = Math.floor(totalPoints * animationProgress);
+      const trailLength = SPEED_CONFIG.trailLength;
 
-      if (visiblePoints > 0) {
-        const points = flightCurve.getPoints(totalPoints).slice(0, visiblePoints);
-        (lineRef.current.geometry as THREE.BufferGeometry).setFromPoints(points);
+      // Get trail points (from currentPoint - trailLength to currentPoint)
+      const startPoint = Math.max(0, currentPoint - trailLength);
+      const trailPoints = flightCurve.getPoints(totalPoints).slice(startPoint, currentPoint + 1);
+
+      if (trailPoints.length > 1) {
+        (trailLineRef.current.geometry as THREE.BufferGeometry).setFromPoints(trailPoints);
       }
     }
   });
 
-  if (!isAnimating) return null;
-
   return (
     <>
-      {lineRef.current && <primitive object={lineRef.current} />}
+      {/* Static faint path - always visible when animating */}
+      {isAnimating && (
+        <line>
+          <bufferGeometry>
+            <bufferAttribute
+              attach="attributes-position"
+              args={[new Float32Array(staticPathPoints.flatMap(p => [p.x, p.y, p.z])), 3]}
+            />
+          </bufferGeometry>
+          <primitive object={staticMaterial} attach="material" />
+        </line>
+      )}
 
-      {/* Glowing tube for better visibility */}
-      <mesh>
-        <tubeGeometry
-          args={[flightCurve, 200, 0.02, 8, false]}
-        />
-        <meshBasicMaterial
-          color={0x00ccff}
-          transparent
-          opacity={isAnimating ? 0.4 : 0}
-          side={THREE.DoubleSide}
-        />
-      </mesh>
+      {/* Red trailing line behind spacecraft */}
+      {isAnimating && trailLineRef.current && (
+        <primitive object={trailLineRef.current} />
+      )}
     </>
   );
 }

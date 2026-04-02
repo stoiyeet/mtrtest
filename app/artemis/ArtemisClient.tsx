@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import { artemisData, type ArtemisMission } from '@/lib/artemisData';
 import ArtemisInfo from '@/components/artemis/ArtemisInfo';
 import styles from './ArtemisPage.module.css';
+import { SPEED_CONFIG } from '@/lib/artemisFlightPath';
 
 // Dynamically import the 3D scene to avoid SSR issues
 const ArtemisScene = dynamic(() => import('@/components/artemis/ArtemisScene'), {
@@ -26,20 +27,31 @@ export default function ArtemisClient() {
   const [playing, setPlaying] = useState(false);
   const [animationStarted, setAnimationStarted] = useState(false);
 
-  // Animation loop (30 seconds default)
+  // Animation loop with variable speed
   useEffect(() => {
     if (!playing) return;
     let raf = 0;
     const tick = () => {
       setT((prev) => {
-        const next = prev + 0.001; // ~30 seconds for full animation
+        // Base increment for ~30 seconds
+        let increment = 0.001;
+
+        // Check if we're in a speed boost section
+        for (const boost of SPEED_CONFIG.speedBoosts) {
+          if (prev >= boost.startT && prev <= boost.endT) {
+            increment *= boost.multiplier;
+            break;
+          }
+        }
+
+        const next = prev + increment;
         return next > 1 ? 1 : next;
       });
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [playing]);
+  }, [playing, SPEED_CONFIG.speedBoosts]);
 
   // Auto-stop at end
   useEffect(() => {

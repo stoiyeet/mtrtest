@@ -31,6 +31,17 @@ const Y_CONFIG = {
   varianceAmplitude: 0.04, // Subtle sine wave variance
 };
 
+// Configuration for animation speed (customizable)
+export const SPEED_CONFIG = {
+  // Speed boost sections: spacecraft moves faster during these time ranges
+  speedBoosts: [
+    { startT: 0.15, endT: 0.25, multiplier: 1.9 },  // 2x speed during loop 2-3
+    { startT: 0.5, endT: 0.6, multiplier: 1.2 },  // 2.5x speed during trans-lunar
+  ],
+  // Trail configuration
+  trailLength: 5,  // Number of points in the red trail behind spacecraft
+};
+
 // Placeholder coordinates - will be set at runtime
 let SMOOTHED_XZ_COORDS: [number, number][] = [];
 
