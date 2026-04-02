@@ -34,7 +34,7 @@ export default function ArtemisInfo({ crew, showMission, onClose, isVisible }: A
             <p className={styles.crewRole}>{crew.role}</p>
             <span className={styles.crewAgency}>{crew.agency}</span>
             {crew.callsign && (
-              <span className={styles.callsign}>CALLSIGN: "{crew.callsign}"</span>
+              <span className={styles.callsign}>CALLSIGN: &quot;{crew.callsign}&quot;</span>
             )}
           </div>
         </div>

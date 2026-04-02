@@ -51,22 +51,34 @@ export default function SpaceBody({
   const showAtmosphere = (celestialBody?.hasAtmosphere ?? false) && 
                         (atmosphereConfig.innerOpacity > 0 || atmosphereConfig.outerOpacity > 0);
 
-  // Conditionally load textures
-  let dayTex, normalTex, specularTex;
-  
-  if (hasTextures && celestialBody?.textureUrls) {
-    dayTex = useLoader(TextureLoader, celestialBody.textureUrls.day);
-    if (celestialBody.textureUrls.normal) {
-      normalTex = useLoader(TextureLoader, celestialBody.textureUrls.normal);
-    }
-    if (celestialBody.textureUrls.specular) {
-      specularTex = useLoader(TextureLoader, celestialBody.textureUrls.specular);
-    }
+  // Use a small data URL as fallback to maintain hook call order
+  const FALLBACK_TEXTURE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
 
-    // Configure texture color spaces
-    if (dayTex) dayTex.colorSpace = THREE.SRGBColorSpace;
-    if (normalTex) normalTex.colorSpace = THREE.LinearSRGBColorSpace;
-    if (specularTex) specularTex.colorSpace = THREE.LinearSRGBColorSpace;
+  // Always call hooks unconditionally with fallback textures
+  const dayTexUrl = hasTextures && celestialBody?.textureUrls?.day
+    ? celestialBody.textureUrls.day
+    : FALLBACK_TEXTURE;
+  const normalTexUrl = hasTextures && celestialBody?.textureUrls?.normal
+    ? celestialBody.textureUrls.normal
+    : FALLBACK_TEXTURE;
+  const specularTexUrl = hasTextures && celestialBody?.textureUrls?.specular
+    ? celestialBody.textureUrls.specular
+    : FALLBACK_TEXTURE;
+
+  // Always load all three textures (hooks must be called unconditionally)
+  const dayTex = useLoader(TextureLoader, dayTexUrl);
+  const normalTex = useLoader(TextureLoader, normalTexUrl);
+  const specularTex = useLoader(TextureLoader, specularTexUrl);
+
+  // Configure texture color spaces
+  if (hasTextures && celestialBody?.textureUrls?.day) {
+    dayTex.colorSpace = THREE.SRGBColorSpace;
+  }
+  if (hasTextures && celestialBody?.textureUrls?.normal) {
+    normalTex.colorSpace = THREE.LinearSRGBColorSpace;
+  }
+  if (hasTextures && celestialBody?.textureUrls?.specular) {
+    specularTex.colorSpace = THREE.LinearSRGBColorSpace;
   }
 
   // Memoize the effective cloud intensity
@@ -80,14 +92,14 @@ export default function SpaceBody({
       <mesh ref={meshRef} onDoubleClick={onDoubleClick} receiveShadow castShadow>
         <sphereGeometry args={[celestialBody.scale, 128, 128]} />
         
-        {hasTextures && dayTex ? (
+        {hasTextures && celestialBody?.textureUrls?.day ? (
           // Textured body (e.g., Earth)
           <meshPhongMaterial
             map={dayTex}
-            normalMap={normalTex || undefined}
-            normalScale={normalTex ? new THREE.Vector2(0.6, 0.6) : new THREE.Vector2(0, 0)}
-            specularMap={specularTex || undefined}
-            specular={specularTex ? 0x444444 : 0x1a1a1a}
+            normalMap={celestialBody?.textureUrls?.normal ? normalTex : undefined}
+            normalScale={celestialBody?.textureUrls?.normal ? new THREE.Vector2(0.6, 0.6) : new THREE.Vector2(0, 0)}
+            specularMap={celestialBody?.textureUrls?.specular ? specularTex : undefined}
+            specular={celestialBody?.textureUrls?.specular ? 0x444444 : 0x1a1a1a}
             shininess={materialConfig.shininess}
             bumpScale={materialConfig.bumpScale}
             emissive={0x101010}

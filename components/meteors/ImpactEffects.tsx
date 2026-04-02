@@ -414,7 +414,7 @@ export default function ImpactEffects({ effects, mortality, impactLat, impactLon
             </div >
             {celestialBody.name.toLowerCase().includes('moon') ? (
               <div className={styles.sectionInfo}>
-                <span style={{ color: "#d34646" }}>Moon safety note:</span> Don't bother checking. The number is 0.
+                <span style={{ color: "#d34646" }}>Moon safety note:</span> Don&apos;t bother checking. The number is 0.
               </div>
             ) : (
               <div className={styles.sectionInfo}>

@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import React, { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { surfacemToChordUnits, EARTH_R_M, ringRotation } from '@/components/meteors/EarthImpact';
+import { earthBody } from '@/lib/CelestialBodies';
 
 // Vertex shader
 const vertexShader = `
@@ -87,7 +88,7 @@ const TsunamiWaves = ({
   const meshRef = useRef<THREE.Mesh>(null!);
 
   const maxRadius = Math.min(height * 100, EARTH_R_M * 0.8);
-  const currentRadius = surfacemToChordUnits(maxRadius * expansionFactor);
+  const currentRadius = surfacemToChordUnits(maxRadius * expansionFactor, earthBody.radius_M, earthBody.scale);
 
   const uniforms = React.useMemo(
     () => ({
