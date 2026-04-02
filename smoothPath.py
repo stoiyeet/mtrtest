@@ -1,56 +1,34 @@
 import json
-import math
-import numpy as np
 
-# --- PARAMETERS ---
-input_file = "public/path.json"          # your original JSON
-output_file = "public/path.json"
-max_step = 0.05          # maximum distance allowed between consecutive points
-arch_factor = 0.05       # how much to raise midpoint for a gentle arch, 0 = straight
+file_path = "public/path.json"  # your JSON file
+alpha = 0.5  # smoothing strength (0 = no change, 1 = full neighbor average)
 
-# --- HELPER FUNCTIONS ---
-def distance(p1, p2):
-    dx = p2[0] - p1[0]
-    dz = p2[1] - p1[1]
-    return math.sqrt(dx*dx + dz*dz)
-
-def densify(points):
-    dense = []
-    for i, p1 in enumerate(points):
-        dense.append(p1)
-        if i < len(points) - 1:
-            p2 = points[i+1]
-            dist = distance(p1, p2)
-            if dist > max_step:
-                steps = int(math.ceil(dist / max_step))  # how many points to insert
-                for s in range(1, steps):
-                    t = s / steps
-                    # Linear interpolation
-                    x = p1[0] + (p2[0] - p1[0]) * t
-                    z = p1[1] + (p2[1] - p1[1]) * t
-                    # Optional mild arch: perpendicular offset
-                    dx = p2[0] - p1[0]
-                    dz = p2[1] - p1[1]
-                    perp_x = -dz
-                    perp_z = dx
-                    # normalize
-                    norm = math.sqrt(perp_x**2 + perp_z**2)
-                    if norm != 0:
-                        perp_x /= norm
-                        perp_z /= norm
-                    # apply small offset
-                    x += perp_x * arch_factor
-                    z += perp_z * arch_factor
-                    dense.append([x, z])
-    return dense
-
-# --- MAIN ---
-with open(input_file, "r") as f:
+with open(file_path, "r") as f:
     points = json.load(f)
 
-dense_points = densify(points)
+# Ensure format [[x, z], ...]
+smoothed = []
 
-with open(output_file, "w") as f:
-    json.dump(dense_points, f, indent=4)
+for i in range(len(points)):
+    x, z = points[i]
 
-print(f"Densified points written to {output_file}, total points: {len(dense_points)}")
+    if i == 0 or i == len(points) - 1:
+        # keep endpoints unchanged
+        smoothed.append([x, z])
+    else:
+        x_prev, z_prev = points[i - 1]
+        x_next, z_next = points[i + 1]
+
+        avg_x = (x_prev + x_next) / 2
+        avg_z = (z_prev + z_next) / 2
+
+        new_x = x + alpha * (avg_x - x)
+        new_z = z + alpha * (avg_z - z)
+
+        smoothed.append([new_x, new_z])
+
+# overwrite file
+with open(file_path, "w") as f:
+    json.dump(smoothed, f, indent=2)
+
+print(f"Smoothed {len(points)} points with alpha={alpha}")

@@ -35,8 +35,9 @@ const Y_CONFIG = {
 export const SPEED_CONFIG = {
   // Speed boost sections: spacecraft moves faster during these time ranges
   speedBoosts: [
-    { startT: 0.15, endT: 0.25, multiplier: 1.9 },  // 2x speed during loop 2-3
-    { startT: 0.5, endT: 0.6, multiplier: 1.2 },  // 2.5x speed during trans-lunar
+    { startT: 0.15, endT: 0.25, multiplier: 1.9 },
+    { startT: 0.4, endT: 0.45, multiplier: 1.5 },
+    { startT: 0.65, endT: 0.75, multiplier: 1.8 },
   ],
   // Trail configuration
   trailLength: 5,  // Number of points in the red trail behind spacecraft
