@@ -60,12 +60,8 @@ function ArtemisSpacecraft({
         spacecraftRef.current.rotation.y += 0.003;
       }
 
-      // Throttle position updates to every 50ms instead of every frame (60 FPS -> 20 FPS position updates)
-      // This reduces unnecessary state updates and re-renders
-      if (state.clock.elapsedTime - lastUpdateTime.current > 0.05) {
-        onPositionUpdate(spacecraftRef.current.position.clone());
-        lastUpdateTime.current = state.clock.elapsedTime;
-      }
+      onPositionUpdate(spacecraftRef.current.position.clone());
+
 
       // Scale up slightly when proximity hover is active
       const targetScale = isHovering ? 0.015 : 0.006;
