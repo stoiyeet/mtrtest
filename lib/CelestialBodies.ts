@@ -15,7 +15,7 @@ export const earthBody: CelestialBody = {
 
     // Rendering properties
     textureUrls: {
-        day: 'https://glb.asteroidstrike.earth/textures/earthDay2.png',
+        day: 'https://glb.asteroidstrike.earth/textures/earthDayEconomy.jpg',
         normal: 'https://glb.asteroidstrike.earth/textures/earthNormal.png',
         specular: 'https://glb.asteroidstrike.earth/textures/earthSpecular.png',
     },

@@ -16,7 +16,7 @@ const GLBS = [
 ];
 
 const TEX = [
-  'https://glb.asteroidstrike.earth/textures/earthDay2.png',
+  'https://glb.asteroidstrike.earth/textures/Economy.png',
   'https://glb.asteroidstrike.earth/textures/earthNormal.png',
   'https://glb.asteroidstrike.earth/textures/earthSpecular.png',
 ];
