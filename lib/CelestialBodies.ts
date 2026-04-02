@@ -9,6 +9,7 @@ export const earthBody: CelestialBody = {
     radius_M: 6371000,
     Volume_KM3: 1.083e12,
     Diameter_M: 12756e3,
+    curvedOutRadiusM: 1_500_000,
     hasAtmosphere: true,
     hasWater: true,
 
@@ -46,6 +47,7 @@ export const moonBody: CelestialBody = {
     radius_M: 1737100,
     Volume_KM3: 2.1958e10,
     Diameter_M: 3474000,
+    curvedOutRadiusM: 50_000,
     hasAtmosphere: false,
     hasWater: false,
 

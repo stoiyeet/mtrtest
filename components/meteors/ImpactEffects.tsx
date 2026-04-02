@@ -240,9 +240,9 @@ export default function ImpactEffects({ effects, mortality, impactLat, impactLon
                 <span className={styles.value}>{formatDistance(Thermal_Effects.Clothes_Burn_Radius)}</span>
               </div>
             )}
-            {Thermal_Effects.Fireball_Radius && Thermal_Effects.Second_Degree_Burn_Radius >= 1500000 && (
+            {Thermal_Effects.Fireball_Radius && Thermal_Effects.Second_Degree_Burn_Radius >= celestialBody.curvedOutRadiusM && (
               <div className={styles.dataRow}>
-                <span className={styles.label} style={{ color: '#d34646ff' }}>Due to the curvature of the earth, the heat effects cannot exceed a max of about 1500km in radius at sea level*</span>
+                <span className={styles.label} style={{ color: '#d34646ff' }}>Due to the curvature of the {celestialBody.name}, the heat effects cannot exceed a max of about {celestialBody.curvedOutRadiusM/1000}km in radius at sea level*</span>
               </div>
             )}
             <Link href="/meteors/formulas?category=thermal" className={styles.scienceButton}>
@@ -411,11 +411,10 @@ export default function ImpactEffects({ effects, mortality, impactLat, impactLon
           <div className={styles.section}>
             <div className={styles.sectionInfo}>
               The ultimate highest concern
-            </div>
+            </div >
             {celestialBody.name.toLowerCase().includes('moon') ? (
-              
               <div className={styles.sectionInfo}>
-                 Artemis mission architecture and lunar surface operations are designed to avoid this scenario. Rest assured the number's gonna be 0.
+                <span style={{ color: "#d34646" }}>Moon safety note:</span> Don't bother checking. The number is 0.
               </div>
             ) : (
               <div className={styles.sectionInfo}>
@@ -457,6 +456,11 @@ export default function ImpactEffects({ effects, mortality, impactLat, impactLon
             <div className={styles.sectionInfo}>
               Tsunami Effects
             </div>
+            {celestialBody.name.toLowerCase().includes('moon') && (
+              <div className={styles.sectionInfo}>
+                No ocean present on this body. Moon tsunami is not possible as of now.
+              </div>
+            )}
             <div className={styles.dataRow}>
               <span className={styles.label}>Wave Height</span>
               <span className={styles.value}>{TsunamiResults.rim_wave_height.toFixed(1)} m</span>

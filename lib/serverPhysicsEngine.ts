@@ -29,7 +29,6 @@ const DEFAULTS = {
     H: 8000,
     fp: 7,
     rho_air_for_wind: 1.2,
-    burn_horizon_m: 1_500_000, // 1500 km cap
     water_depth_m: 3682,
     density_water: 1000,
     water_drag_coeff: 0.877
@@ -151,7 +150,7 @@ export function fireballRadius(E_J: number, body: CelestialBody) {
 }
 
 // 7) burn radii (clothing, 2nd, 3rd) with horizon cap
-export function burnRadii(E_Mt: number, E_J: number, K = DEFAULTS.K) {
+export function burnRadii(E_Mt: number, E_J: number, K = DEFAULTS.K, curvedOutRadius: number) {
     const thresholds_1Mt_MJ = {
         clothing: 1.0,
         second: 0.25,
@@ -164,7 +163,7 @@ export function burnRadii(E_Mt: number, E_J: number, K = DEFAULTS.K) {
         const thr_J = thr_MJ * 1e6;
         const thr_scaled = thr_J * Math.pow(Math.max(E_Mt, 1e-12), 1 / 6);
         const r = Math.sqrt((K * E_J) / (2 * Math.PI * thr_scaled));
-        results[key] = Math.min(r, DEFAULTS.burn_horizon_m);
+        results[key] = Math.min(r,curvedOutRadius );
     }
     return results;
 }
@@ -742,7 +741,7 @@ export function computeImpactEffects(
 
     // 2. Thermal Effects
     const thermalEffects: Thermal_Effects = (() => {
-            const burns = burnRadii(Impact_Energy_Megatons_TNT, Impact_Energy, K);
+            const burns = burnRadii(Impact_Energy_Megatons_TNT, Impact_Energy, K, body.curvedOutRadiusM);
             const Fireball_Radius = fireballRadius(Impact_Energy, body);
             return {
                 Fireball_Radius,

@@ -115,6 +115,7 @@ export interface CelestialBody {
     radius_M: number;
     Volume_KM3: number;
     Diameter_M: number;
+    curvedOutRadiusM: number;
     hasAtmosphere: boolean;
     hasWater: boolean;
 
