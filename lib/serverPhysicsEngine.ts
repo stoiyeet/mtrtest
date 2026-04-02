@@ -48,7 +48,21 @@ export function energyFromDiameter(m: number, v0: number) {
 }
 
 // intact surface velocity from drag eq (eq.8* simplified)
-export function intactSurfaceVelocity(v0: number, L0: number, rho_i: number, theta_rad: number, Cd = DEFAULTS.Cd, rho0 = DEFAULTS.rho0, H = DEFAULTS.H) {
+export function intactSurfaceVelocity(
+    v0: number,
+    L0: number,
+    rho_i: number,
+    theta_rad: number,
+    Cd = DEFAULTS.Cd,
+    rho0 = DEFAULTS.rho0,
+    H = DEFAULTS.H,
+    hasAtmosphere = true
+) {
+    if (!hasAtmosphere) {
+        // In a vacuum (Moon), there is no atmospheric slowdown.
+        return v0;
+    }
+
     // v_surface = v0 * exp(-3*Cd*rho0*FH/(4*rho_i*L0*sin(theta)))
     const sinT = Math.sin(theta_rad);
     const denom = 4 * rho_i * L0 * sinT;
@@ -68,7 +82,21 @@ function atmosphericDensity(z: number, rho0 = DEFAULTS.rho0, H = DEFAULTS.H): nu
 
 
 // breakup If and altitude z* (analytic approx)
-export function breakupIfAndZstar(Lo: number, rho_i: number, vo: number, theta_rad: number, CD = DEFAULTS.Cd, H = DEFAULTS.H, rho_0 = DEFAULTS.rho0) {
+export function breakupIfAndZstar(
+    Lo: number,
+    rho_i: number,
+    vo: number,
+    theta_rad: number,
+    CD = DEFAULTS.Cd,
+    H = DEFAULTS.H,
+    rho_0 = DEFAULTS.rho0,
+    hasAtmosphere = true
+) {
+    if (!hasAtmosphere) {
+        // No atmospheric breakup in vacuum.
+        return { If: 0, z_star: 0, breakup: false };
+    }
+
     // Calculate the yield strength Y_i using the empirical formula.
     const Yi = Math.pow(10, 2.107 + 0.0624 * Math.sqrt(rho_i));
 
@@ -87,7 +115,21 @@ export function breakupIfAndZstar(Lo: number, rho_i: number, vo: number, theta_r
     return { If, z_star, breakup };
 }
 
-export function pancakeAirburstAltitude(Lo: number, rho_i: number, theta_rad: number, z_star: number, H = DEFAULTS.H, fp = DEFAULTS.fp, CD = DEFAULTS.Cd) {
+export function pancakeAirburstAltitude(
+    Lo: number,
+    rho_i: number,
+    theta_rad: number,
+    z_star: number,
+    H = DEFAULTS.H,
+    fp = DEFAULTS.fp,
+    CD = DEFAULTS.Cd,
+    hasAtmosphere = true
+) {
+    if (!hasAtmosphere || z_star <= 0) {
+        // No airburst without atmosphere.
+        return 0;
+    }
+
     // The document uses rho(z*) which is the atmospheric density at the breakup altitude.
     // We need to use the provided atmosphericDensity function to get this value.
     const rho_z_star = atmosphericDensity(z_star);
@@ -607,22 +649,35 @@ function peakWindSpeed(overpressure_Pa: number, P_0 = 1e5, c_0 = 330): number {
     return (5 * overpressure_Pa / (7 * P_0)) * (c_0 / (Math.sqrt(1 + (6 * overpressure_Pa) / (7 * P_0))));
 }
 
-function computeStrikeOverview(inputs: Damage_Inputs): Strike_Overview {
+function computeStrikeOverview(inputs: Damage_Inputs, body: CelestialBody = earthBody): Strike_Overview {
     const { L0, rho_i, v0, theta_deg, mass } = inputs;
     const Cd = inputs.Cd ?? DEFAULTS.Cd;
     const rho0 = inputs.rho0 ?? DEFAULTS.rho0;
     const H = DEFAULTS.H;
+    const hasAtmosphere = body.hasAtmosphere;
 
     const theta_rad = (theta_deg * Math.PI) / 180.0;
     const { E_J, E_Mt } = energyFromDiameter(mass, v0);
     const Tre_years = 109 * Math.pow(Math.max(E_Mt, 1e-12), 0.78);
 
+    if (!hasAtmosphere) {
+        // No atmospheric breakup or slowing for airless worlds.
+        return {
+            Impact_Energy: E_J,
+            Impact_Energy_Megatons_TNT: E_Mt,
+            Recurrence_Period: Tre_years,
+            Impact_Velocity: v0,
+            Breakup_Altitude: 0,
+            Airburst_Altitude: 0,
+        };
+    }
+
     // Intact surface velocity
-    const v_surface_intact = intactSurfaceVelocity(v0, L0, rho_i, theta_rad, Cd, rho0, H);
+    const v_surface_intact = intactSurfaceVelocity(v0, L0, rho_i, theta_rad, Cd, rho0, H, hasAtmosphere);
 
     // Breakup and airburst
-    const { z_star, breakup } = breakupIfAndZstar(L0, rho_i, v0, theta_rad, Cd, H, rho0);
-    const zb = breakup ? pancakeAirburstAltitude(L0, rho_i, theta_rad, z_star) : 0;
+    const { z_star, breakup } = breakupIfAndZstar(L0, rho_i, v0, theta_rad, Cd, H, rho0, hasAtmosphere);
+    const zb = breakup ? pancakeAirburstAltitude(L0, rho_i, theta_rad, z_star, H, DEFAULTS.fp, Cd, hasAtmosphere) : 0;
 
     return {
         Impact_Energy: E_J,
@@ -680,7 +735,7 @@ export function computeImpactEffects(
     const K = inputs.K ?? DEFAULTS.K;
 
     // 1. Strike Overview
-    const strikeOverview = computeStrikeOverview(inputs);
+    const strikeOverview = computeStrikeOverview(inputs, body);
     const { Impact_Energy, Impact_Energy_Megatons_TNT, Airburst_Altitude, Breakup_Altitude } = strikeOverview;
     const breakup = Breakup_Altitude > 0;
     const airburst = breakup && Airburst_Altitude > 0;
