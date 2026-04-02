@@ -135,11 +135,13 @@ export default function Home(): React.ReactElement {
                 <span className="text-cyan-400">IMPACT</span>
               </h1>
 
+
               {/* Description */}
               <p className="text-gray-300 text-base md:text-lg mb-8 leading-relaxed">
                 Real-time asteroid impact simulation. Model collisions, evaluate outcomes,
                 and explore defense strategies through an interactive system.
               </p>
+
 
               {/* Actions */}
               <div className="flex flex-col gap-3 max-w-md">
