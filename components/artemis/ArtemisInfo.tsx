@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import type { CrewMember } from '@/lib/artemisData';
 import { artemisData } from '@/lib/artemisData';
 import styles from './ArtemisInfo.module.css';
@@ -19,10 +20,14 @@ export default function ArtemisInfo({ crew, showMission, onClose, isVisible }: A
     return (
       <div>
         <div className={styles.crewHeader}>
-          <img
+          <Image
             src={crew.image}
             alt={crew.name}
+            width={140}
+            height={140}
             className={styles.crewPhoto}
+            quality={85}
+            priority={false}
           />
           <div className={styles.crewTitle}>
             <h2 className={styles.crewName}>{crew.name}</h2>
@@ -126,7 +131,14 @@ export default function ArtemisInfo({ crew, showMission, onClose, isVisible }: A
 
       {/* Artemis branding footer */}
       <div className={styles.footer}>
-        <img src="https://glb.asteroidstrike.earth/images/ArtemisLogo.jpg" alt="Artemis Logo" className={styles.footerLogo} />
+        <Image
+          src="https://glb.asteroidstrike.earth/images/ArtemisLogo.jpg"
+          alt="Artemis Logo"
+          width={64}
+          height={32}
+          className={styles.footerLogo}
+          quality={85}
+        />
         <span className={styles.footerText}>Gateway to Mars</span>
       </div>
     </div>

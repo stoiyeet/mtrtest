@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import dynamic from 'next/dynamic';
+import Image from 'next/image';
 import { artemisData, type CrewMember } from '@/lib/artemisData';
 import ArtemisInfo from '@/components/artemis/ArtemisInfo';
 import styles from './ArtemisPage.module.css';
@@ -141,7 +142,14 @@ export default function ArtemisClient() {
 
       {/* Easter egg - Artemis logo watermark */}
       <div className={styles.artemisWatermark}>
-        <img src="https://glb.asteroidstrike.earth/images/ArtemisLogo2.png" alt="Artemis" />
+        <Image
+          src="https://glb.asteroidstrike.earth/images/ArtemisLogo2.png"
+          alt="Artemis"
+          width={80}
+          height={80}
+          quality={75}
+          priority={false}
+        />
       </div>
 
       {/* Program overview - top left */}
@@ -252,10 +260,13 @@ export default function ArtemisClient() {
                   onClick={() => handleCrewSelect(crew)}
                   className={styles.mobileCrewItem}
                 >
-                  <img
+                  <Image
                     src={crew.image}
                     alt={crew.name}
+                    width={80}
+                    height={80}
                     className={styles.mobileCrewPhoto}
+                    quality={85}
                   />
                   <div className={styles.mobileCrewInfo}>
                     <span className={styles.mobileCrewName}>{crew.name}</span>

@@ -38,6 +38,7 @@ function ArtemisSpacecraft({
 }) {
   const { scene } = useGLTF('https://glb.asteroidstrike.earth/artemis1.glb');
   const spacecraftRef = useRef<THREE.Group>(null);
+  const lastUpdateTime = useRef(0);
 
   // Clone the scene to avoid issues with multiple instances
   const clonedScene = useMemo(() => scene.clone(), [scene]);
@@ -59,8 +60,12 @@ function ArtemisSpacecraft({
         spacecraftRef.current.rotation.y += 0.003;
       }
 
-      // Report position to parent for hover proximity checks at all times
-      onPositionUpdate(spacecraftRef.current.position.clone());
+      // Throttle position updates to every 50ms instead of every frame (60 FPS -> 20 FPS position updates)
+      // This reduces unnecessary state updates and re-renders
+      if (state.clock.elapsedTime - lastUpdateTime.current > 0.05) {
+        onPositionUpdate(spacecraftRef.current.position.clone());
+        lastUpdateTime.current = state.clock.elapsedTime;
+      }
 
       // Scale up slightly when proximity hover is active
       const targetScale = isHovering ? 0.015 : 0.006;
@@ -226,6 +231,12 @@ function Scene({
 
   const PROXIMITY_THRESHOLD = 0.30; // world-space units, tweak as needed
 
+  // Detect mobile for performance optimizations
+  const isMobile = useMemo(() => {
+    if (typeof window === 'undefined') return false;
+    return window.innerWidth < 768;
+  }, []);
+
   // Load path coordinates on mount
   useEffect(() => {
     loadPathCoordinates().then(() => {
@@ -321,12 +332,12 @@ function Scene({
 
       <Lighting />
 
-      {/* Stars background */}
+      {/* Stars background - reduced count on mobile for better performance */}
       <Stars
         radius={300}
         depth={60}
-        count={10000}
-        factor={4}
+        count={isMobile ? 2000 : 5000}
+        factor={isMobile ? 2 : 4}
         saturation={0}
         fade
         speed={1}

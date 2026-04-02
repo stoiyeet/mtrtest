@@ -37,7 +37,7 @@ export const SPEED_CONFIG = {
   speedBoosts: [
     { startT: 0.15, endT: 0.25, multiplier: 1.9 },
     { startT: 0.4, endT: 0.45, multiplier: 1.5 },
-    { startT: 0.65, endT: 0.75, multiplier: 1.8 },
+    { startT: 0.65, endT: 0.75, multiplier: 1.2 },
   ],
   // Trail configuration
   trailLength: 10,  // Number of points in the red trail behind spacecraft
