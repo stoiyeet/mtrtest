@@ -192,6 +192,19 @@ const Page: React.FC = () => {
           </button>
         </div>
       )}
+
+      {/* Artemis Easter Egg */}
+      <a
+        href="/artemis"
+        className="fixed bottom-20 right-4 z-40 w-10 h-10 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300 overflow-hidden opacity-40 hover:opacity-100 hover:scale-110 hover:border-cyan-400/40 hover:shadow-[0_0_15px_rgba(0,204,255,0.3)]"
+        title="Explore NASA's Artemis Program"
+      >
+        <img
+          src="/images/ArtemisLogo2.png"
+          alt="Artemis"
+          className="w-full h-full object-cover"
+        />
+      </a>
     </div>
   );
 };

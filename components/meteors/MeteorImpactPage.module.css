@@ -257,3 +257,42 @@
   min-width: 80px;
   text-align: center;
 }
+
+/* Artemis Easter Egg */
+.artemisEasterEgg {
+  position: fixed;
+  bottom: 80px;
+  left: 15px;
+  z-index: 5;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  opacity: 0.4;
+}
+
+.artemisEasterEgg:hover {
+  opacity: 1;
+  transform: scale(1.15);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(0, 204, 255, 0.4);
+  box-shadow: 0 0 15px rgba(0, 204, 255, 0.3);
+}
+
+.artemisLogo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+@media (max-width: 767px) {
+  .artemisEasterEgg {
+    bottom: 70px;
+    left: 10px;
+    width: 35px;
+    height: 35px;
+  }
+}

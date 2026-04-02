@@ -97,6 +97,25 @@ export default function BottomNav() {
             </span>
           </Link>
 
+          {/* Artemis */}
+          <Link
+            href="/artemis"
+            className="flex flex-col items-center justify-center p-2 md:p-3 rounded-full hover:bg-white/20 transition-all duration-300 group whitespace-nowrap min-h-[44px] min-w-[44px]"
+          >
+            <svg
+              className="w-5 h-5 mb-1 text-white/80 group-hover:text-white transition-colors duration-300"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <circle cx="12" cy="12" r="3" strokeWidth={2} />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2v4m0 12v4M2 12h4m12 0h4m-3.05-6.95l2.83-2.83M6.22 17.78l2.83-2.83m0-9.9l-2.83-2.83m12.73 12.73l-2.83-2.83" />
+            </svg>
+            <span id="nav-artemis" className="text-xs text-white/80 group-hover:text-white transition-colors duration-300 font-light hidden md:block">
+              Artemis
+            </span>
+          </Link>
+
           {/* Defense */}
           <Link
             href="/mitigation"

@@ -459,6 +459,19 @@ export default function MeteorImpactPageOptimized({ meteor }: { meteor: Meteor }
           <div className={styles.timelineStatus}>{getTimelineStatus()}</div>
         </div>
       </div>
+
+      {/* Artemis Easter Egg - Subtle bottom-left badge */}
+      <a
+        href="/artemis"
+        className={styles.artemisEasterEgg}
+        title="Explore NASA's Artemis Program"
+      >
+        <img
+          src="/images/ArtemisLogo2.png"
+          alt="Artemis"
+          className={styles.artemisLogo}
+        />
+      </a>
     </div>
   );
 }

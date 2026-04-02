@@ -20,6 +20,10 @@ export default function Home(): React.ReactElement {
       content: "Explore theoretical impacts of real and custom meteor strikes",
     },
     {
+      target: "#nav-artemis",
+      content: "Discover NASA's Artemis program - returning humans to the Moon",
+    },
+    {
       target: "#nav-mitigation",
       content: "Simulate modern mitigation techniques for asteroid threats",
     },
@@ -70,6 +74,25 @@ export default function Home(): React.ReactElement {
           Try Endpoint
         </span>
       </div>
+
+      {/* Artemis Easter Egg - Logo Badge */}
+      <a
+        href="/artemis"
+        className="absolute top-20 right-4 z-50 hidden md:block group"
+        title="Explore NASA's Artemis Program"
+      >
+        <div className="relative w-16 h-16 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300 overflow-hidden group-hover:scale-110">
+          <img
+            src="/images/ArtemisLogo2.png"
+            alt="Artemis"
+            className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-cyan-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        </div>
+        <span className="block mt-1 text-[9px] text-center uppercase tracking-wider text-gray-400 group-hover:text-cyan-400 transition-colors">
+          Artemis
+        </span>
+      </a>
 
       {/* Tour */}
       {mounted && (
@@ -151,6 +174,15 @@ export default function Home(): React.ReactElement {
                   onClick={() => (window.location.href = "/meteors")}
                 >
                   Impact Assessment
+                </button>
+
+                <button
+                  id="nav-artemis"
+                  className="px-6 py-3 rounded-lg border border-blue-400/30 bg-blue-400/10 hover:bg-blue-400/20 text-blue-300 transition flex items-center justify-center gap-2 group"
+                  onClick={() => (window.location.href = "/artemis")}
+                >
+                  <span className="text-lg group-hover:scale-110 transition-transform">🌙</span>
+                  Artemis Program
                 </button>
 
                 <button
