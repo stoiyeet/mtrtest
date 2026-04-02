@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import Link from 'next/link';
 import styles from './ImpactEffects.module.css';
 import { Damage_Results } from '@/lib/impactTypes';
+import { CelestialBody } from '@/lib/impactTypes';
 import { strict } from 'assert';
 
 // Helper function to format distances
@@ -58,6 +59,7 @@ function formatSpeed(speed: number | null): string {
 
 interface ImpactEffectsProps {
   effects: Damage_Results;
+  celestialBody: CelestialBody;
   mortality: {
     deathCount: number | undefined;
     injuryCount: number | undefined;
@@ -76,7 +78,7 @@ interface ImpactEffectsProps {
 
 
 
-export default function ImpactEffects({ effects, mortality, impactLat, impactLon, name, TsunamiResults }: ImpactEffectsProps) {
+export default function ImpactEffects({ effects, mortality, impactLat, impactLon, name, TsunamiResults, celestialBody }: ImpactEffectsProps) {
   let collapseState;
   if (window.innerWidth > 768) {
     collapseState = false
@@ -96,9 +98,9 @@ export default function ImpactEffects({ effects, mortality, impactLat, impactLon
   
   // Get descriptive text for earth effect
   const earthEffectText = {
-    destroyed: 'Earth Forms a new asteroid belt orbiting the sun',
-    strongly_disturbed: 'Earth\'s orbit is shifted substantially.',
-    negligible_disturbed: 'Earth Loses Negligible Mass'
+    destroyed: `The ${celestialBody.name} Forms a new asteroid belt orbiting the sun`,
+    strongly_disturbed: `The ${celestialBody.name}\'s orbit is shifted substantially.`,
+    negligible_disturbed: `The ${celestialBody.name} Loses Negligible Mass`
   }[Crater_Results.Earth_Effect];
 
   const earthEffectClass = {

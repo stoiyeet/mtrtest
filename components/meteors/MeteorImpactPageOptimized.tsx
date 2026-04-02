@@ -354,6 +354,7 @@ export default function MeteorImpactPageOptimized({ meteor }: { meteor: Meteor }
             impactLon={actualLong} 
             name={meteor.name} 
             TsunamiResults = {damage.Tsunami_Results}
+            celestialBody = {selectedBody}
           />
         )}
       </div>
