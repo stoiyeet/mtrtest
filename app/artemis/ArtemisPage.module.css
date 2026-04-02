@@ -747,7 +747,7 @@
     right: 10px;
     min-width: 0;
     transform: none;
-    padding: 10px 12px;
+    padding: 1px 0px;
   }
 
   .timelineInner {
