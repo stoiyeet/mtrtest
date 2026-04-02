@@ -209,6 +209,15 @@ export default function ImpactEffects({ effects, mortality, impactLat, impactLon
                 <span className={styles.value}>{formatDistance(Thermal_Effects.Fireball_Radius)}</span>
               </div>
             )}
+            {celestialBody.hasAtmosphere ? (
+              <div className={styles.sectionInfo}>
+                Fireball radiant heating is delivered by a shock-heated air column and plasma. On airless bodies, radiation is emitted directly through vacuum; the radius is a visual estimate, not a convective heat front.
+              </div>
+            ) : (
+              <div className={styles.sectionInfo}>
+                On the Moon, there is no atmosphere to carry heat as a conventional fireball wave. Heat travels as direct radiation and ejecta, not as an air-driven flame front.
+              </div>
+            )}
             <div className={styles.distanceGrid}>
               {Thermal_Effects.Third_Degree_Burn_Radius && (
                 <div className={styles.distanceCard}>
@@ -247,12 +256,18 @@ export default function ImpactEffects({ effects, mortality, impactLat, impactLon
             <div className={styles.sectionInfo}>
               The wave blast creates a sudden pressure increase that can damage structures and cause injuries.
             </div>
-            {Waveblast_Results?.Wind_Speed_50_km && Waveblast_Results.Wind_Speed_50_km < 5000 && (
-                <div className={styles.dataRow}>
+            {!celestialBody.hasAtmosphere ? (
+              <div className={styles.sectionInfo}>
+                No atmosphere, no traditional blast wave. On the Moon, impacts produce seismic shaking and ejecta, but not an air-pressure wave—also, there is no sound propagation in vacuum.
+              </div>
+            ) : (
+              <>
+                {Waveblast_Results?.Wind_Speed_50_km && Waveblast_Results.Wind_Speed_50_km < 5000 && (
+                  <div className={styles.dataRow}>
                     <span className={styles.label}>Overpressure At 50km away</span>
                     <span className={styles.value}>{formatOverPressure(Waveblast_Results.Overpressure_50_km)}</span>
-              </div>
-             )}
+                  </div>
+                )}
 
             {Waveblast_Results?.Wind_Speed_50_km && Waveblast_Results.Wind_Speed_50_km < 5000 && (
               <div className={styles.dataRow}>
@@ -299,6 +314,8 @@ export default function ImpactEffects({ effects, mortality, impactLat, impactLon
             <Link href="/meteors/formulas?category=blast" className={styles.scienceButton}>
               🧪 Check the Science
             </Link>
+          </>
+            )}
           </div>
         )}
 
@@ -395,6 +412,16 @@ export default function ImpactEffects({ effects, mortality, impactLat, impactLon
             <div className={styles.sectionInfo}>
               The ultimate highest concern
             </div>
+            {celestialBody.name.toLowerCase().includes('moon') ? (
+              
+              <div className={styles.sectionInfo}>
+                 Artemis mission architecture and lunar surface operations are designed to avoid this scenario. Rest assured the number's gonna be 0.
+              </div>
+            ) : (
+              <div className={styles.sectionInfo}>
+                Human vulnerability depends on local population, sheltering, and emergency response.
+              </div>
+            )}
             {(
               <div className={styles.dataRow}>
                 <span className={styles.label}>Mortality Estimate</span>
