@@ -64,7 +64,7 @@ function ArtemisSpacecraft({
       }
 
       // Scale up slightly on hover
-      const targetScale = hovered ? 0.015 : 0.012;
+      const targetScale = hovered ? 0.008 : 0.006;
       spacecraftRef.current.scale.lerp(
         new THREE.Vector3(targetScale, targetScale, targetScale),
         0.1
