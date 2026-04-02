@@ -8,7 +8,7 @@ import { GLTF } from 'three-stdlib';
 
 import { getGlbFile } from './asteroidGLB';
 import AsteroidExplosion from './AsteroidExplosion';
-import Earth from "@/components/Earth";
+import SpaceBody from "@/components/SpaceBody";
 import ExplosionFlash from '@/components/ExplosionFlash';
 import { Damage_Results, CelestialBody } from '@/lib/impactTypes';
 import { computeWaveRadii } from './utils/waveRadii';
@@ -610,7 +610,7 @@ export default function EarthImpact({
     <group>
       {/* Celestial Body - only render if not destroyed or before impact */}
       {!(Crater_Results.Earth_Effect === "destroyed" && t > impactTime) && (
-        <Earth
+        <SpaceBody
           onDoubleClick={handleDoubleClick}
           impactPosition={impactPos}
           blastRadius={blastRadius}

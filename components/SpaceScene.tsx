@@ -8,7 +8,7 @@ import * as THREE from "three";
 
 import { OrbitControls as OrbitControlsImpl } from "three-stdlib"; // add this import
 
-import Earth from "@/components/Earth";
+import SpaceBody from "@/components/SpaceBody"
 import Asteroid from "@/components/Asteroid";
 import Sun from "@/components/Sun";
 import KineticImpactor from "@/components/KineticImpactor";
@@ -16,6 +16,7 @@ import LaserDefense from "@/components/LaserDefense";
 import NuclearDetonation from "@/components/NuclearDetonation";
 import GravityTractor from "@/components/GravityTractor";
 import IonBeamShepherd from "@/components/ionBeamShepherd";
+import {earthBody} from "@/lib/CelestialBodies"
 
 // === Types ===
 // IMPORTANT: Keep this in sync with ai/page.tsx EFFECTS_CONFIG keys
@@ -269,10 +270,6 @@ const SceneContent: React.FC<{
   }, []);
 
 
-  const handleEarthDoubleClick = useCallback(() => {
-    console.log("Earth double-clicked");
-  }, []);
-
   return (
     <>
       <Stars count={15000} fade speed={0.1} radius={200} depth={100} />
@@ -292,7 +289,7 @@ const SceneContent: React.FC<{
 
       {/* Earth */}
       <group scale={[30, 30, 30]} ref={earthRef}>
-        <Earth onDoubleClick={handleEarthDoubleClick} />
+        <SpaceBody celestialBody={earthBody}/>
       </group>
 
       {/* Asteroid */}

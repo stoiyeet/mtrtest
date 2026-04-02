@@ -2,8 +2,11 @@
 
 import React, { useRef, useState, useEffect } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { OrbitControls, Stars, useGLTF, PerspectiveCamera } from '@react-three/drei';
+import { OrbitControls, Stars, useGLTF, useTexture, PerspectiveCamera } from '@react-three/drei';
 import * as THREE from 'three';
+import {earthBody, moonBody} from "@/lib/CelestialBodies"
+import SpaceBody from "@/components/SpaceBody";
+
 
 interface ArtemisSceneProps {
   onSpacecraftClick: () => void;
@@ -13,48 +16,7 @@ interface ArtemisSceneProps {
 // Preload the Artemis model
 useGLTF.preload('https://glb.asteroidstrike.earth/artemis1.glb');
 
-function Moon() {
-  const moonRef = useRef<THREE.Mesh>(null);
 
-  useFrame(() => {
-    if (moonRef.current) {
-      moonRef.current.rotation.y += 0.001;
-    }
-  });
-
-  return (
-    <mesh ref={moonRef} position={[0, 0, 0]}>
-      <sphereGeometry args={[1.737, 64, 64]} />
-      <meshStandardMaterial
-        map={useTexture('https://glb.asteroidstrike.earth/Moon.png')}
-        roughness={0.95}
-        metalness={0.1}
-      />
-    </mesh>
-  );
-}
-
-function Earth() {
-  const earthRef = useRef<THREE.Mesh>(null);
-
-  useFrame(() => {
-    if (earthRef.current) {
-      earthRef.current.rotation.y += 0.002;
-    }
-  });
-
-  return (
-    <mesh ref={earthRef} position={[-15, 2, -8]}>
-      <sphereGeometry args={[2.5, 64, 64]} />
-      <meshStandardMaterial
-        map={useTexture('https://glb.asteroidstrike.earth/earthDay2.png')}
-        normalMap={useTexture('https://glb.asteroidstrike.earth/earthNormal.png')}
-        roughness={0.7}
-        metalness={0.2}
-      />
-    </mesh>
-  );
-}
 
 function ArtemisSpacecraft({ onClick, onHover }: { onClick: () => void; onHover: (hovered: boolean) => void }) {
   const { scene } = useGLTF('https://glb.asteroidstrike.earth/artemis1.glb');
@@ -111,20 +73,7 @@ function ArtemisSpacecraft({ onClick, onHover }: { onClick: () => void; onHover:
   );
 }
 
-// Helper function to load textures
-function useTexture(url: string) {
-  const [texture, setTexture] = useState<THREE.Texture | null>(null);
 
-  useEffect(() => {
-    const loader = new THREE.TextureLoader();
-    loader.load(url, (loadedTexture) => {
-      loadedTexture.colorSpace = THREE.SRGBColorSpace;
-      setTexture(loadedTexture);
-    });
-  }, [url]);
-
-  return texture;
-}
 
 function Lighting() {
   return (
@@ -183,10 +132,12 @@ function Scene({ onSpacecraftClick, onHoverChange }: ArtemisSceneProps) {
         speed={1}
       />
 
-      {/* Celestial bodies */}
-      <Moon />
-      <Earth />
+      
 
+      {/* Celestial bodies */}
+      <SpaceBody celestialBody={moonBody} position={[0,0,0]} />
+
+      <SpaceBody celestialBody={earthBody} position={[-15, 2, -8]}/>
       {/* Artemis spacecraft */}
       <ArtemisSpacecraft
         onClick={onSpacecraftClick}

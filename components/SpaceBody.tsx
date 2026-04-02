@@ -1,4 +1,4 @@
-// components/Earth.tsx
+// components/SpaceBody.tsx
 
 import * as THREE from 'three';
 import React, { useRef, useMemo } from 'react';
@@ -8,7 +8,8 @@ import { CelestialBody } from '@/lib/impactTypes';
 import Clouds from './Clouds';
 
 interface EarthProps {
-  onDoubleClick: (event: ThreeEvent<PointerEvent>) => void;
+  onDoubleClick?: (event: ThreeEvent<PointerEvent>) => void;
+  position?: [number, number, number]
   showClouds?: boolean;
   cloudIntensity?: number;
   impactPosition?: THREE.Vector3 | null;
@@ -23,8 +24,9 @@ const EARTH_R = 1;
  * Generic celestial body renderer that adapts to any body's properties
  * Supports textured bodies (Earth) and untextured rocky bodies (Moon)
  */
-export default function Earth({
+export default function SpaceBody({
   onDoubleClick,
+  position,
   showClouds = true,
   cloudIntensity = 0.8,
   impactPosition = null,
@@ -75,7 +77,7 @@ export default function Earth({
   }, [showClouds, materialConfig.cloudIntensity]);
 
   return (
-    <group>
+    <group position={position}>
       {/* Main Celestial Body Mesh */}
       <mesh ref={meshRef} onDoubleClick={onDoubleClick} receiveShadow castShadow>
         <sphereGeometry args={[EARTH_R, 128, 128]} />
