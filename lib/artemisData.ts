@@ -109,9 +109,13 @@ export const artemisData: ArtemisInfo = {
     highlights: [
       "Four astronauts loop around the Moon aboard NASA's most powerful rocket",
       "First humans beyond Earth orbit since Apollo 17 (1972)",
+      "Fuel load: >700,000 gallons of liquid hydrogen + liquid oxygen",
+      "Farthest humans from Earth since Apollo — ~250,000 miles (400,000 km)",
+      "Re-entry speed ~25,000 mph (40,000 km/h) — fastest human re-entry in history",
+      "Launch rocket: Space Launch System (SLS), ~8.8 million pounds of thrust",
       "Validates life support, communications, and deep-space navigation systems",
       "Lunar far-side observations and scientific data collection",
-      "300,000+ mile journey pushing the boundaries of human exploration"
+      "Historic test flight: first crewed mission of Orion spacecraft in deep space"
     ],
     significance: "Artemis II is the critical proving ground for returning humans to the lunar surface. This mission demonstrates that we can safely send astronauts to deep space and bring them home—the essential first step toward establishing a sustained presence on the Moon and preparing humanity for Mars.",
     nextSteps: [
