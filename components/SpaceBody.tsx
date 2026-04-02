@@ -15,10 +15,8 @@ interface EarthProps {
   impactPosition?: THREE.Vector3 | null;
   blastRadius?: number;
   explosionStrength?: number;
-  celestialBody?: CelestialBody;
+  celestialBody: CelestialBody;
 }
-
-const EARTH_R = 1;
 
 /**
  * Generic celestial body renderer that adapts to any body's properties
@@ -80,7 +78,7 @@ export default function SpaceBody({
     <group position={position}>
       {/* Main Celestial Body Mesh */}
       <mesh ref={meshRef} onDoubleClick={onDoubleClick} receiveShadow castShadow>
-        <sphereGeometry args={[EARTH_R, 128, 128]} />
+        <sphereGeometry args={[celestialBody.scale, 128, 128]} />
         
         {hasTextures && dayTex ? (
           // Textured body (e.g., Earth)
@@ -112,7 +110,7 @@ export default function SpaceBody({
         <>
           {/* Inner atmosphere glow - closer, more colored */}
           <mesh>
-            <sphereGeometry args={[EARTH_R * 1.008, 64, 64]} />
+            <sphereGeometry args={[celestialBody.scale * 1.008, 64, 64]} />
             <meshBasicMaterial 
               color={atmosphereConfig.inner} 
               transparent 
@@ -124,7 +122,7 @@ export default function SpaceBody({
 
           {/* Outer atmosphere glow - further, subtle */}
           <mesh>
-            <sphereGeometry args={[EARTH_R * 1.015, 32, 32]} />
+            <sphereGeometry args={[celestialBody.scale * 1.015, 32, 32]} />
             <meshBasicMaterial 
               color={atmosphereConfig.outer} 
               transparent 

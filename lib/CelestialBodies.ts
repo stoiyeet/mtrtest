@@ -2,6 +2,7 @@ import {CelestialBody} from "./impactTypes";
 
 export const earthBody: CelestialBody = {
     name: "Earth",
+    scale: 1,
 
     // Physical constants
     gravity: 9.81,
@@ -40,6 +41,7 @@ export const earthBody: CelestialBody = {
 
 export const moonBody: CelestialBody = {
     name: "Moon",
+    scale: 0.3,
     gravity: 1.62,
     radius_M: 1737100,
     Volume_KM3: 2.1958e10,

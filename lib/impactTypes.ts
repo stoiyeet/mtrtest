@@ -108,6 +108,7 @@ export type ImpactEngineInput = {
 
 export interface CelestialBody {
     name: string;
+    scale: number;
 
     // Physical constants
     gravity: number;

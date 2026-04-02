@@ -52,14 +52,13 @@ interface Props {
   celestialBody: CelestialBody;  // the body being impacted
 }
 
-const EARTH_R = 1;  // normalized radius for Three.js
 export const EARTH_R_M = 6371000;  // Earth's actual radius in meters
 type GLTFResult = GLTF & { scene: THREE.Group };
 
-export function surfacemToChordUnits(m: number, bodyRadiusM: number = EARTH_R_M): number {
+export function surfacemToChordUnits(m: number, bodyRadiusM: number = EARTH_R_M, scale: number): number {
   const maxm = Math.min(m, bodyRadiusM * 0.9);
   const theta = maxm / bodyRadiusM;
-  return EARTH_R * theta * 0.8;
+  return scale * theta * 0.8;
 }
 
 
@@ -195,7 +194,7 @@ export default function EarthImpact({
   // Create a helper function that uses the current celestial body's radius
   // This ensures all distance conversions are relative to the target body
   const toChordUnits = useCallback((surfaceDistanceM: number): number => {
-    return surfacemToChordUnits(surfaceDistanceM, celestialBody.radius_M);
+    return surfacemToChordUnits(surfaceDistanceM, celestialBody.radius_M, celestialBody.scale);
   }, [celestialBody.radius_M]);
   useEffect(() => {
     const SOUND_BASE = "https://glb.asteroidstrike.earth/AudioFiles"
@@ -282,13 +281,13 @@ export default function EarthImpact({
 
   const height = Math.max(3*Strike_Overview.Airburst_Altitude/celestialBody.radius_M, 0.001)
   const impactPos = useMemo(
-    () => latLonToVec3(impact.lat, impact.lon, EARTH_R + height),
+    () => latLonToVec3(impact.lat, impact.lon, celestialBody.scale + height),
     [impact]
   );
 
 
   const entryStart = useMemo(
-    () => latLonToVec3(impact.lat + (90 - meteor.angle)*12/17, impact.lon, EARTH_R * 1.8),
+    () => latLonToVec3(impact.lat + (90 - meteor.angle)*12/17, impact.lon, 1.8),
     [impact, meteor.angle]
   );
 
@@ -305,9 +304,9 @@ export default function EarthImpact({
   const desiredAsteroidRadiusUnits = useMemo(() => {
     const diameterKm = Math.max(meteor.diameter / 1000, 0); // diameter is in meters, convert to km
     const radiusKm = diameterKm / 2;
-    const minVisible = 0.002 * EARTH_R;
-    const maxVisible = 0.05 * EARTH_R;
-    const calculatedSize = (radiusKm / celestialBody.radius_M) * EARTH_R;
+    const minVisible = 0.002;
+    const maxVisible = 0.05;
+    const calculatedSize = (radiusKm / celestialBody.radius_M);
     return Math.max(minVisible, Math.min(calculatedSize, maxVisible));
   }, [meteor.diameter, celestialBody.radius_M]);
 
