@@ -263,7 +263,7 @@ function Scene({
     raycaster.ray.closestPointToPoint(spacecraftPosition, closestPoint);
     const distance = closestPoint.distanceTo(spacecraftPosition);
 
-    const nowHover = distance <= PROXIMITY_THRESHOLD;
+    const nowHover = distance <= PROXIMITY_THRESHOLD && !isAnimating;
     setSpacecraftHover(nowHover);
     onHoverChange(nowHover ? 'Artemis Spacecraft' : null);
   };
@@ -272,7 +272,7 @@ function Scene({
     const onMove = (e: PointerEvent) => updateProximityStatus(e.clientX, e.clientY);
     const onDown = (e: PointerEvent) => {
       updateProximityStatus(e.clientX, e.clientY);
-      if (spacecraftHover) {
+      if (spacecraftHover && !isAnimating) {
         onSpacecraftClick();
       }
     };
