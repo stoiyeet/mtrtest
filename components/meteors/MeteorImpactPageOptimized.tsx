@@ -44,7 +44,7 @@ export default function MeteorImpactPageOptimized({ meteor }: { meteor: Meteor }
   const [isHudCollapsed, setIsHudCollapsed] = useState(false);
   const [shakeIntensity, setShakeIntensity] = useState(0);
   const [mounted, setMounted] = useState(false);
-  const [selectedBody, setSelectedBody] = useState<CelestialBody>(moonBody);
+  const [selectedBody, setSelectedBody] = useState<CelestialBody>(earthBody);
   const actualLong = - impactLon;  //longitude must be made negative because earth texture is flipped
   const [t, setT] = useState(0);
   const [playing, setPlaying] = useState(true);
