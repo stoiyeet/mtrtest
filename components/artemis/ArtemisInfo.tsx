@@ -28,6 +28,7 @@ export default function ArtemisInfo({ crew, showMission, onClose, isVisible }: A
             className={styles.crewPhoto}
             quality={85}
             priority={false}
+            unoptimized
           />
           <div className={styles.crewTitle}>
             <h2 className={styles.crewName}>{crew.name}</h2>
@@ -138,6 +139,7 @@ export default function ArtemisInfo({ crew, showMission, onClose, isVisible }: A
           height={32}
           className={styles.footerLogo}
           quality={85}
+          unoptimized
         />
         <span className={styles.footerText}>Gateway to Mars</span>
       </div>

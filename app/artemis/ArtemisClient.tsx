@@ -156,6 +156,7 @@ export default function ArtemisClient() {
           height={80}
           quality={75}
           priority={false}
+          unoptimized
         />
       </div>
 
@@ -274,6 +275,7 @@ export default function ArtemisClient() {
                     height={80}
                     className={styles.mobileCrewPhoto}
                     quality={85}
+                    unoptimized
                   />
                   <div className={styles.mobileCrewInfo}>
                     <span className={styles.mobileCrewName}>{crew.name}</span>

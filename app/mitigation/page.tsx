@@ -128,6 +128,7 @@ const Page: React.FC = () => {
                         sizes="(max-width: 768px) 100vw, 224px"
                         className="rounded-md border border-gray-600 object-cover"
                         priority={false}
+                        unoptimized
                       />
                     </div>
                     <p className="text-xs text-gray-300">{description}</p>
